@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <br>
+    <h2>Результаты поиска: 
+        {% for indx in arg %}
+            {{indx}}
+        {% endfor %}
+    </h2>
+    {% for row in rows %}
+        <h2>{{row[3]}} Строка {{row[4]}}  <a href='{{ url_for("content", ident = row[5]) }}' target="_blank">Просмотр</a>
+        </h2>
+
+    </div>
+    {% endfor %}
+
+{% endblock %}

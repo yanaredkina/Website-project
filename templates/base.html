@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="{{ url_for('static', filename= 'style.css') }}"/>
+        <script src="{{ url_for('static', filename= 'script.js') }}"></script>
+        <title>Registry</title>
+    </head>
+    
+    <body>
+        <a href="{{ url_for('index')}}" >В начало</a>
+        <h1>Экспериментальный сайт<br>Редькиной Я.Б.</h1>
+        <br>
+        
+        <div class="container">
+            {% for message in get_flashed_messages() %}
+                <div class="alert">{{ message }}</div>
+            {% endfor %}
+            {% block content %} {% endblock %}
+        </div>
+    </body>
+</html>

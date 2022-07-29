@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <form class="search" action="/search" method="post" name='registration' onsubmit="return searchformValidation();">
+        <p>Поиск по базе: </p>
+        <ul>
+        <li><label for="lastname">Фамилия*</label></li>
+        <li><input type="text" name="lastname" value="{{ request.form.lastname}}" required /></li>
+        
+        <li><label for="firstname">Имя</label></li>
+        <li><input type="text" name="firstname" value="{{ request.form.firstname}}" /></li>
+        
+        <li><label for="middlename">Отчество</label></li>
+        <li><input type="text" name="middlename" value="{{ request.form.middlename}}" /></li>
+        
+        <li><input id="input" type="submit" value="Найти"></li>
+        </ul>
+        <br>
+        <a id="upload" href="{{url_for('upload')}}">Добавить документ</a>
+    </form>
+
+{% endblock %}
+
+
