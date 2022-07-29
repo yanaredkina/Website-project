@@ -83,40 +83,39 @@ def upload():
         content = fileobj.read()
         
         try:
-            #conn = get_db_connection()
             connection = sqlite3.connect('database.db')
             cursor = connection.cursor()
             cursor.execute("INSERT INTO Persons (LastName, FirstName, MiddleName, Note) VALUES (?, ?, ?, ?)",
                          (lastname, firstname, middlename, note))
-            lastpersonID = cursor.execute("SELECT id FROM Persons ORDER BY id DESC LIMIT 1").fetchone()
-            print(lastpersonID[0])
-            print(cursor.lastrowid)
+            lastpersonID = cursor.lastrowid
             
             filetype = fileobj.filename.split('.')[-1]
             cursor.execute("INSERT INTO Files (Type, Content) VALUES (?, ?)",
                         (filetype, content))
-            lastfileID = cursor.execute("SELECT id FROM Files ORDER BY id DESC LIMIT 1").fetchone()
+            lastfileID = cursor.lastrowid
+            print(lastpersonID)
            
             cursor.execute("INSERT INTO Reports (Name, Year) VALUES (?, ?)",
                         (report, year))
-            lastreportID = cursor.execute("SELECT id FROM Reports ORDER BY id DESC LIMIT 1").fetchone()
+            lastreportID = cursor.lastrowid
+            print(lastreportID)
             
             cursor.execute("INSERT INTO ReportRegistry (FileID, ReportID) VALUES (?, ?)",
-                        (lastfileID[0], lastreportID[0]))
+                        (lastfileID, lastreportID))
             cursor.execute("INSERT INTO PersonRegistry (PersonID, FileID, ReportID, Page) VALUES (?, ?, ?, ?)",
-                        (lastpersonID[0], lastfileID[0], lastreportID[0], page))
-            
-            cursor.commit()
+                        (lastpersonID, lastfileID, lastreportID, page))
+                        
+            connection.commit()
             flash("Запись успешно добавлена")
             
         except sqlite3.Error as e:
-            if cursor: 
-                cursor.rollback()
+            if connection: 
+                connection.rollback()
             flash("Ошибка выполнения запроса")
         
         finally:
-            if cursor: 
-                cursor.close()
+            if connection: 
+                connection.close()
             return redirect(url_for('index'))
 
     return render_template('upload.html')
