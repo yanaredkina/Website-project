@@ -83,36 +83,40 @@ def upload():
         content = fileobj.read()
         
         try:
-            conn = get_db_connection()
-            conn.execute("INSERT INTO Persons (LastName, FirstName, MiddleName, Note) VALUES (?, ?, ?, ?)",
+            #conn = get_db_connection()
+            connection = sqlite3.connect('database.db')
+            cursor = connection.cursor()
+            cursor.execute("INSERT INTO Persons (LastName, FirstName, MiddleName, Note) VALUES (?, ?, ?, ?)",
                          (lastname, firstname, middlename, note))
-            lastpersonID = conn.execute("SELECT id FROM Persons ORDER BY id DESC LIMIT 1").fetchone()
+            lastpersonID = cursor.execute("SELECT id FROM Persons ORDER BY id DESC LIMIT 1").fetchone()
+            print(lastpersonID[0])
+            print(cursor.lastrowid)
             
             filetype = fileobj.filename.split('.')[-1]
-            conn.execute("INSERT INTO Files (Type, Content) VALUES (?, ?)",
+            cursor.execute("INSERT INTO Files (Type, Content) VALUES (?, ?)",
                         (filetype, content))
-            lastfileID = conn.execute("SELECT id FROM Files ORDER BY id DESC LIMIT 1").fetchone()
+            lastfileID = cursor.execute("SELECT id FROM Files ORDER BY id DESC LIMIT 1").fetchone()
            
-            conn.execute("INSERT INTO Reports (Name, Year) VALUES (?, ?)",
+            cursor.execute("INSERT INTO Reports (Name, Year) VALUES (?, ?)",
                         (report, year))
-            lastreportID = conn.execute("SELECT id FROM Reports ORDER BY id DESC LIMIT 1").fetchone()
+            lastreportID = cursor.execute("SELECT id FROM Reports ORDER BY id DESC LIMIT 1").fetchone()
             
-            conn.execute("INSERT INTO ReportRegistry (FileID, ReportID) VALUES (?, ?)",
+            cursor.execute("INSERT INTO ReportRegistry (FileID, ReportID) VALUES (?, ?)",
                         (lastfileID[0], lastreportID[0]))
-            conn.execute("INSERT INTO PersonRegistry (PersonID, FileID, ReportID, Page) VALUES (?, ?, ?, ?)",
+            cursor.execute("INSERT INTO PersonRegistry (PersonID, FileID, ReportID, Page) VALUES (?, ?, ?, ?)",
                         (lastpersonID[0], lastfileID[0], lastreportID[0], page))
             
-            conn.commit()
+            cursor.commit()
             flash("Запись успешно добавлена")
             
         except sqlite3.Error as e:
-            if conn: 
-                conn.rollback()
+            if cursor: 
+                cursor.rollback()
             flash("Ошибка выполнения запроса")
         
         finally:
-            if conn: 
-                conn.close()
+            if cursor: 
+                cursor.close()
             return redirect(url_for('index'))
 
     return render_template('upload.html')
