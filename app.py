@@ -85,20 +85,20 @@ def upload():
         try:
             connection = sqlite3.connect('database.db')
             cursor = connection.cursor()
+            
             cursor.execute("INSERT INTO Persons (LastName, FirstName, MiddleName, Note) VALUES (?, ?, ?, ?)",
                          (lastname, firstname, middlename, note))
             lastpersonID = cursor.lastrowid
             
             filetype = fileobj.filename.split('.')[-1]
+
             cursor.execute("INSERT INTO Files (Type, Content) VALUES (?, ?)",
                         (filetype, content))
             lastfileID = cursor.lastrowid
-            print(lastpersonID)
            
             cursor.execute("INSERT INTO Reports (Name, Year) VALUES (?, ?)",
                         (report, year))
             lastreportID = cursor.lastrowid
-            print(lastreportID)
             
             cursor.execute("INSERT INTO ReportRegistry (FileID, ReportID) VALUES (?, ?)",
                         (lastfileID, lastreportID))
