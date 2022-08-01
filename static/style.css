@@ -28,6 +28,7 @@ h2 {
     font-size: 20px;
     text-shadow: 1px 1px 1px #000;
     position: relative;
+    padding: 5px 0px 0px 20px;
 }
 
 p {

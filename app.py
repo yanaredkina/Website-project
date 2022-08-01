@@ -1,6 +1,7 @@
 import sqlite3
 from flask import Flask, render_template, request, url_for, flash, redirect, send_file
 from io import BytesIO
+from insert_batch import insert_batch
 
     
 def ignore_case_collation(value1, value2):
@@ -16,7 +17,17 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     conn.create_collation("NOCASE", ignore_case_collation)
     return conn
-        
+
+class DBobj:
+    def __init__(self, lastname, firstname, middlename, note, report, year, page, fileobj):
+        self.lastname = lastname
+        self.firstname = firstname
+        self.middlename = middlename
+        self.note = note
+        self.report = report
+        self.year = year
+        self.page = page
+        self.fileobj = fileobj
     
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'my secret key'
@@ -63,7 +74,7 @@ def content(ident):
         return send_file(bytes_io, mimetype='application/pdf')
 
 
-#####
+
 @app.route('/upload', methods=('GET', 'POST'))
 def upload():
     if request.method == 'POST':
@@ -80,6 +91,17 @@ def upload():
             flash('Нет выбранного файла')
             return render_template('upload.html')
             
+        
+    #####
+        
+        obj = DBobj(lastname, firstname, middlename, note, report, year, page, fileobj)
+        batch = [obj]
+        insert_batch(batch)
+        
+        return redirect(url_for('index'))
+        
+        
+    """
         content = fileobj.read()
         
         try:
@@ -117,5 +139,7 @@ def upload():
             if connection: 
                 connection.close()
             return redirect(url_for('index'))
+        
+        """ 
 
     return render_template('upload.html')
