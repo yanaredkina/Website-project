@@ -19,7 +19,7 @@ def get_db_connection():
     return conn
 
 class DBobj:
-    def __init__(self, lastname, firstname, middlename, note, report, year, page, fileobj):
+    def __init__(self, lastname, firstname, middlename, note, report, year, page, filetype, content):
         self.lastname = lastname
         self.firstname = firstname
         self.middlename = middlename
@@ -27,7 +27,8 @@ class DBobj:
         self.report = report
         self.year = year
         self.page = page
-        self.fileobj = fileobj
+        self.filetype = filetype
+        self.content = content
     
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'my secret key'
@@ -91,55 +92,20 @@ def upload():
             flash('Нет выбранного файла')
             return render_template('upload.html')
             
-        
-    #####
-        
-        obj = DBobj(lastname, firstname, middlename, note, report, year, page, fileobj)
-        batch = [obj]
-        insert_batch(batch)
-        
-        return redirect(url_for('index'))
-        
-        
-    """
         content = fileobj.read()
+        filetype = fileobj.filename.split('.')[-1]
+            
+        obj = DBobj(lastname, firstname, middlename, note, report, year, page, filetype, content)
+        batch = [obj]
         
-        try:
-            connection = sqlite3.connect('database.db')
-            cursor = connection.cursor()
-            
-            cursor.execute("INSERT INTO Persons (LastName, FirstName, MiddleName, Note) VALUES (?, ?, ?, ?)",
-                         (lastname, firstname, middlename, note))
-            lastpersonID = cursor.lastrowid
-            
-            filetype = fileobj.filename.split('.')[-1]
-
-            cursor.execute("INSERT INTO Files (Type, Content) VALUES (?, ?)",
-                        (filetype, content))
-            lastfileID = cursor.lastrowid
-           
-            cursor.execute("INSERT INTO Reports (Name, Year) VALUES (?, ?)",
-                        (report, year))
-            lastreportID = cursor.lastrowid
-            
-            cursor.execute("INSERT INTO ReportRegistry (FileID, ReportID) VALUES (?, ?)",
-                        (lastfileID, lastreportID))
-            cursor.execute("INSERT INTO PersonRegistry (PersonID, FileID, ReportID, Page) VALUES (?, ?, ?, ?)",
-                        (lastpersonID, lastfileID, lastreportID, page))
-                        
-            connection.commit()
+        try: 
+            insert_batch(batch)
             flash("Запись успешно добавлена")
-            
-        except sqlite3.Error as e:
-            if connection: 
-                connection.rollback()
-            flash("Ошибка выполнения запроса")
-        
-        finally:
-            if connection: 
-                connection.close()
             return redirect(url_for('index'))
         
-        """ 
+        except Exception as error:
+            flash("Ошибка выполнения запроса: ")
+            flash(' '.join(error.args))
+            return render_template('upload.html')
 
     return render_template('upload.html')
