@@ -1,7 +1,28 @@
+function allLetter(input) {
+    var cyrillicPattern = /^[А-Яа-яё]+$/i;
+    var latinPattern = /^[A-Za-z]+$/i;
+    if (cyrillicPattern.test(input) || latinPattern.test(input)) {
+        return true;
+    } else {
+        alert('Name must have alphabet characters only');
+        return false;
+    }
+}
+
+function isNumber(input) {
+    var numPattern = /^\d+$/;
+    if (numPattern.test(input)) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 function searchformValidation() {
     var lastname = document.registration.lastname.value;
     var firstname = document.registration.firstname.value;
     var middlename = document.registration.middlename.value;
+    
     if (!allLetter(lastname)) {
         return false;
     }
@@ -36,25 +57,15 @@ function uploadformValidation() {
         return false;
     }
     
-    if (isNaN(year)) {
+    if (!isNumber(year)) {
         alert('Year must be a number');
         return false;
     }
     
-    if (isNaN(page)) {
+    if (!isNumber(page)) {
         alert('Page must be a number');
         return false;
     }
     
     return true;
-}
-
-function allLetter(name) {
-    var letters = /^[А-Яа-яё]+$/i;
-    if (letters.test(name)) {
-        return true;
-    } else {
-        alert('Name must have cyrillic alphabet characters only');
-        return false;
-    }
 }
