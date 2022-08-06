@@ -37,24 +37,27 @@ def search():
                                FROM Persons INNER JOIN PersonRegistry ON Persons.ID=PersonRegistry.PersonID 
                                             INNER JOIN Reports on PersonRegistry.ReportID=Reports.ID 
                                             INNER JOIN Files on PersonRegistry.FileID=Files.ID 
-                               WHERE sql_lower(Persons.LastName) LIKE ?  """
+                               WHERE sql_lower(Persons.LastName) """
     
     if request.form.get('exactMatch'):
-        s = ''
+        s = lambda x: sql_lower(x)
+        q = ' = ? '
     else:
-        s = '%'
+        s = lambda x: '%' + sql_lower(x) + '%'
+        q = ' LIKE ? '           
         
     arguments = []
     lastname = request.form['lastname']
-    arguments.append(s + sql_lower(lastname) + s)
+    query += q
+    arguments.append(s(lastname))
     if 'firstname' in request.form and len(request.form['firstname']) > 0:
         firstname = request.form['firstname']
-        query += 'AND sql_lower(Persons.FirstName) LIKE ? '
-        arguments.append(s + sql_lower(firstname) + s)
+        query += 'AND sql_lower(Persons.FirstName) ' + q
+        arguments.append(s(firstname))
     if 'middlename' in request.form and len(request.form['middlename']) > 0:
         middlename = request.form['middlename']
-        query += 'AND sql_lower(Persons.MiddleName) LIKE ? '
-        arguments.append(s + sql_lower(middlename) + s)
+        query += 'AND sql_lower(Persons.MiddleName) ' + q
+        arguments.append(s(middlename))
     
     conn = get_db_connection()
     registry = conn.execute(query, arguments).fetchall()
