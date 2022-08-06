@@ -2,20 +2,14 @@ import sqlite3
 from flask import Flask, render_template, request, url_for, flash, redirect, send_file
 from io import BytesIO
 from insert_batch import insert_batch
-
-    
-def ignore_case_collation(value1, value2):
-    if value1.lower() == value2.lower():
-        return 0
-    elif value1.lower() < value2.lower():
-        return -1
-    else:
-        return 1 
+        
+def sql_lower(value):
+    return value.lower()
 
 def get_db_connection():
     conn = sqlite3.connect('database.db')
     conn.row_factory = sqlite3.Row
-    conn.create_collation("NOCASE", ignore_case_collation)
+    conn.create_function("sql_lower", 1, sql_lower)
     return conn
 
 class DBobj:
@@ -43,18 +37,25 @@ def search():
                                FROM Persons INNER JOIN PersonRegistry ON Persons.ID=PersonRegistry.PersonID 
                                             INNER JOIN Reports on PersonRegistry.ReportID=Reports.ID 
                                             INNER JOIN Files on PersonRegistry.FileID=Files.ID 
-                               WHERE Persons.LastName=? COLLATE NOCASE """
+                               WHERE sql_lower(Persons.LastName) LIKE ?  """
+    
+    if request.form.get('exactMatch'):
+        s = ''
+    else:
+        s = '%'
+        
     arguments = []
     lastname = request.form['lastname']
-    arguments.append(lastname)
+    arguments.append(s + sql_lower(lastname) + s)
     if 'firstname' in request.form and len(request.form['firstname']) > 0:
         firstname = request.form['firstname']
-        query += 'AND Persons.FirstName=? COLLATE NOCASE '
-        arguments.append(firstname)
+        query += 'AND sql_lower(Persons.FirstName) LIKE ? '
+        arguments.append(s + sql_lower(firstname) + s)
     if 'middlename' in request.form and len(request.form['middlename']) > 0:
         middlename = request.form['middlename']
-        query += 'AND Persons.MiddleName=? COLLATE NOCASE '
-        arguments.append(middlename)
+        query += 'AND sql_lower(Persons.MiddleName) LIKE ? '
+        arguments.append(s + sql_lower(middlename) + s)
+    
     conn = get_db_connection()
     registry = conn.execute(query, arguments).fetchall()
     conn.close()
