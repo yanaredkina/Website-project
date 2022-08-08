@@ -1,7 +1,8 @@
 import sqlite3
 from flask import Flask, render_template, request, url_for, flash, redirect, send_file
 from io import BytesIO
-from insert_batch import insert_batch
+from insert_batch import insert_batch, DBobj
+from insert_batch import 
         
 def sql_lower(value):
     return value.lower()
@@ -11,18 +12,6 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     conn.create_function("sql_lower", 1, sql_lower)
     return conn
-
-class DBobj:
-    def __init__(self, lastname, firstname, middlename, note, report, year, page, filetype, content):
-        self.lastname = lastname
-        self.firstname = firstname
-        self.middlename = middlename
-        self.note = note
-        self.report = report
-        self.year = year
-        self.page = page
-        self.filetype = filetype
-        self.content = content
     
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'my secret key'

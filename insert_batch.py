@@ -1,6 +1,19 @@
 import sqlite3
 from flask import Flask, flash
 
+class DBobj:
+    def __init__(self, lastname, firstname, middlename, note, report, year, page, filetype, content):
+        self.lastname = lastname
+        self.firstname = firstname
+        self.middlename = middlename
+        self.note = note
+        self.report = report
+        self.year = year
+        self.page = page
+        self.filetype = filetype
+        self.content = content
+
+
 def insert_batch(batch):
     connection = sqlite3.connect('database.db')
     cursor = connection.cursor()
