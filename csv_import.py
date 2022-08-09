@@ -11,11 +11,11 @@ with open('some.csv', newline='') as f:
             print("lastname must have alphabet characters only")
             exit(1)
             
-        if row[1] and (not row[0].isalpha()):
+        if row[1] and (not row[1].isalpha()):
             print("firstname must have alphabet characters only")
             exit(1)
             
-        if row[2] and (not row[0].isalpha()):
+        if row[2] and (not row[2].isalpha()):
             print("middlename must have alphabet characters only")
             exit(1)
             

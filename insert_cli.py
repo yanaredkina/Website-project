@@ -17,7 +17,15 @@ parser.add_argument('--path', dest='path', type=str, required=True)
 args = parser.parse_args()
 
 if not args.lastname.isalpha():
-    print('lastname must be alphabet symbols')
+    print("lastname must have alphabet characters only")
+    exit(1)
+    
+if args.firstname and (not args.firstname.isalpha()):
+    print("firstname must have alphabet characters only")
+    exit(1)
+    
+if args.middlename and (not args.middlename.isalpha()):
+    print("middlename must have alphabet characters only")
     exit(1)
 
 with open(args.path, 'rb') as file:
