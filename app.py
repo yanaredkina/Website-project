@@ -2,7 +2,6 @@ import sqlite3
 from flask import Flask, render_template, request, url_for, flash, redirect, send_file
 from io import BytesIO
 from insert_batch import insert_batch, DBobj
-from insert_batch import 
         
 def sql_lower(value):
     return value.lower()
