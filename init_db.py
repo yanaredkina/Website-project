@@ -1,11 +1,5 @@
 import sqlite3
 
-def convertToBinaryData(filename):
-    with open(filename, 'rb') as file:
-        blobData = file.read()
-    return blobData
-    
-    
 connection = sqlite3.connect('database.db')
 connection.text_factory = str
 
@@ -44,24 +38,24 @@ cur.execute("INSERT INTO Persons (LastName, FirstName, MiddleName) VALUES (?, ?,
             
                         
 
-cur.execute("INSERT INTO Files (Type, Content) VALUES (?, ?)",
-            ('pdf', convertToBinaryData('report1.pdf'))
+cur.execute("INSERT INTO Files (Type, FilePath) VALUES (?, ?)",
+            ('pdf', 'documents/report1.pdf')
             )
 
-cur.execute("INSERT INTO Files (Type, Content) VALUES (?, ?)",
-            ('jpg', convertToBinaryData('report2_1.jpg'))
+cur.execute("INSERT INTO Files (Type, FilePath) VALUES (?, ?)",
+            ('jpg', 'documents/report2_1.jpg')
             )
             
-cur.execute("INSERT INTO Files (Type, Content) VALUES (?, ?)",
-            ('jpg', convertToBinaryData('report2_2.jpg'))
+cur.execute("INSERT INTO Files (Type, FilePath) VALUES (?, ?)",
+            ('jpg', 'documents/report2_2.jpg')
             )
             
-cur.execute("INSERT INTO Files (Type, Content) VALUES (?, ?)",
-            ('jpg', convertToBinaryData('report2_3.jpg'))
+cur.execute("INSERT INTO Files (Type, FilePath) VALUES (?, ?)",
+            ('jpg', 'documents/report2_3.jpg')
             )
 
-cur.execute("INSERT INTO Files (Type, Content) VALUES (?, ?)",
-            ('jpg', convertToBinaryData('report3_1.jpg'))
+cur.execute("INSERT INTO Files (Type, FilePath) VALUES (?, ?)",
+            ('jpg', 'documents/report3_1.jpg')
             )
 
 

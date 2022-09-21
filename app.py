@@ -1,7 +1,8 @@
 import sqlite3
 from flask import Flask, render_template, request, url_for, flash, redirect, send_file
-from io import BytesIO
 from insert_batch import insert_batch, DBobj
+from csv_import import csv_import
+from io import StringIO
         
 def sql_lower(value):
     return value.lower()
@@ -14,6 +15,7 @@ def get_db_connection():
     
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'my secret key'
+app.config['UPLOAD_FOLDER'] = 'documents/'
     
 @app.route('/')
 def index():
@@ -58,13 +60,12 @@ def search():
 @app.route('/content/<int:ident>')
 def content(ident):
     conn = get_db_connection()
-    result = conn.execute('SELECT Content, Type FROM Files WHERE ID = ?', (ident,)).fetchone()
+    result = conn.execute('SELECT FilePath, Type FROM Files WHERE ID = ?', (ident,)).fetchone()
     conn.close()
-    bytes_io = BytesIO(result[0])
     if result[1] == 'jpg':
-        return send_file(bytes_io, mimetype='image/jpeg')
+        return send_file(result[0], mimetype='image/jpeg')
     else: 
-        return send_file(bytes_io, mimetype='application/pdf')
+        return send_file(result[0], mimetype='application/pdf')
 
 
 
@@ -84,10 +85,11 @@ def upload():
             flash('Нет выбранного файла')
             return render_template('upload.html')
             
-        content = fileobj.read()
+        filepath = app.config['UPLOAD_FOLDER'] + fileobj.filename
+        fileobj.save(filepath)
         filetype = fileobj.filename.split('.')[-1]
             
-        obj = DBobj(lastname, firstname, middlename, note, report, year, page, filetype, content)
+        obj = DBobj(lastname, firstname, middlename, note, report, year, page, filetype, filepath)
         batch = [obj]
         
         try: 
@@ -101,4 +103,30 @@ def upload():
             return render_template('upload.html')
 
     return render_template('upload.html')
-       
+
+@app.route('/upload_batch', methods=('GET', 'POST'))
+def upload_batch():
+    if request.method == 'POST':
+        fileobj = request.files['file']  
+        if not fileobj:
+            flash('Нет выбранного файла')
+            return render_template('upload_batch.html')
+        
+        if (fileobj.filename.split('.')[-1] != 'csv'):
+            flash('Файл неверного формата')
+            return render_template('upload_batch.html')
+        
+        bytes = fileobj.read().decode('utf8')
+        stream = StringIO(bytes)
+        try:
+            csv_import(stream)
+            flash("Пакет успешно добавлен")
+            return redirect(url_for('index'))
+            
+        except Exception as error:
+            flash("Ошибка выполнения запроса: ")
+            flash(' '.join(error.args))
+            return render_template('upload_batch.html')
+        
+    return render_template('upload_batch.html')
+        

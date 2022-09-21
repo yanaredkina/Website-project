@@ -2,7 +2,7 @@ import sqlite3
 from flask import Flask, flash
 
 class DBobj:
-    def __init__(self, lastname, firstname, middlename, note, report, year, page, filetype, content):
+    def __init__(self, lastname, firstname, middlename, note, report, year, page, filetype, filepath):
         self.lastname = lastname
         self.firstname = firstname
         self.middlename = middlename
@@ -11,7 +11,7 @@ class DBobj:
         self.year = year
         self.page = page
         self.filetype = filetype
-        self.content = content
+        self.filepath = filepath
 
 
 def insert_batch(batch):
@@ -26,8 +26,8 @@ def insert_batch(batch):
                          (obj.lastname, obj.firstname, obj.middlename, obj.note))
             lastpersonID = cursor.lastrowid
 
-            cursor.execute("INSERT INTO Files (Type, Content) VALUES (?, ?)",
-                        (obj.filetype, obj.content))
+            cursor.execute("INSERT INTO Files (Type, FilePath) VALUES (?, ?)",
+                        (obj.filetype, obj.filepath))
             lastfileID = cursor.lastrowid
        
             cursor.execute("INSERT INTO Reports (Name, Year) VALUES (?, ?)",

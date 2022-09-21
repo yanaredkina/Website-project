@@ -93,13 +93,24 @@ form input {
 }
 
 #upload {
+    float: left;
     color: black;
     border: 2px solid cornflowerblue;
     border-radius: 10px;
     background-color: white;
     padding: 10px;
-    margin: 10px 50px 10px 85px;
+    margin-left: 5px;
 
+}
+
+#upload_batch {
+    float: left;
+    color: black;
+    border: 2px solid cornflowerblue;
+    border-radius: 10px;
+    background-color: white;
+    padding: 10px;
+    margin-left: 15px;
 }
 
 #up-form {
@@ -109,4 +120,9 @@ form input {
 
 #up-form label, input {
     font-size: 15px;
+}
+
+#update-batch: {
+    height: 200px;
+    width: 400px;
 }
