@@ -8,9 +8,8 @@
         {% endfor %}
     </h2>
     {% for row in rows %}
-        <h2>{{row[3]}} Строка {{row[4]}}  <a href='{{ url_for("content", ident = row[5])}}#page={{row[4]}}' target="_blank">Просмотр</a>   
-        </h2>
-
+        <a id="text-ref" href='{{ url_for("content", ident = row[5])}}#page={{row[4]}}' target="_blank">{{row[3]}} Строка {{row[4]}}</a>
+        <br>
     </div>
     {% endfor %}
 

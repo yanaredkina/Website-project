@@ -56,6 +56,7 @@ def search():
         flash('Ничего не найдено!')
         return redirect(url_for('index'))
     return render_template("search.html", rows = registry, arg=arguments)
+
     
 @app.route('/content/<int:ident>')
 def content(ident):
@@ -129,4 +130,35 @@ def upload_batch():
             return render_template('upload_batch.html')
         
     return render_template('upload_batch.html')
-        
+    
+    
+@app.route('/all', methods=['GET'])
+def all():
+    query = """SELECT Persons.ID, Persons.LastName, Persons.FirstName, Persons.MiddleName
+                               FROM Persons
+                               GROUP BY Persons.ID"""
+    conn = get_db_connection()
+    result = conn.execute(query).fetchall()
+    conn.close()
+    if not result:
+        flash('Ничего не найдено!')
+        return redirect(url_for('index'))
+    return render_template("all.html", rows = result)
+    
+
+@app.route('/search_ID/<int:ident>')
+def search_ID(ident):
+    query = """SELECT Persons.LastName, Persons.FirstName, Persons.MiddleName, Reports.Name, PersonRegistry.Page, Files.ID
+                               FROM Persons INNER JOIN PersonRegistry ON Persons.ID=PersonRegistry.PersonID 
+                                            INNER JOIN Reports on PersonRegistry.ReportID=Reports.ID 
+                                            INNER JOIN Files on PersonRegistry.FileID=Files.ID 
+                               WHERE Persons.ID = ? """          
+                               
+    conn = get_db_connection()
+    result = conn.execute(query, (ident,)).fetchall()
+    conn.close()
+    if not result:
+        flash('Ничего не найдено!')
+        return redirect(url_for('index'))
+    arguments = [result[0][0], result[0][1], result[0][2]]
+    return render_template("search.html", rows = result, arg=arguments)

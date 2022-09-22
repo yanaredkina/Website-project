@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <br>
+    <h2>Список всех персон: </h2>
+    <br>
+    {% for row in rows %}
+        <p id="list">{{row[1]}} {{row[2]}} {{row[3]}} <a href='{{ url_for("search_ID", ident = row[0])}}' target="_blank">Документы</a>  
+        </p>
+
+    </div>
+    {% endfor %}
+
+{% endblock %}

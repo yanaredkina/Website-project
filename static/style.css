@@ -37,12 +37,21 @@ p {
     font-size: 20px;
 }
 
+#list {
+    text-align: left;
+    margin: 5px;
+}
+
 a[href] {
     color: lightskyblue;
     font-size: 20px;
 }
 
-.search {
+#text-ref {
+    margin-left: 20px;
+}
+
+.form {
     background-color: white;
     height: 260px;
     width: 400px;
@@ -92,24 +101,22 @@ form input {
     text-align: center;
 }
 
-#upload {
+.button {
     float: left;
-    color: black;
     border: 2px solid cornflowerblue;
     border-radius: 10px;
     background-color: white;
     padding: 10px;
-    margin-left: 5px;
+    margin-top: 10px;
+}
 
+#upload {
+    color: black;
+    margin-left: 5px;
 }
 
 #upload_batch {
-    float: left;
     color: black;
-    border: 2px solid cornflowerblue;
-    border-radius: 10px;
-    background-color: white;
-    padding: 10px;
     margin-left: 15px;
 }
 
@@ -125,4 +132,9 @@ form input {
 #update-batch: {
     height: 200px;
     width: 400px;
+}
+
+#all {
+    color: black;
+    margin-left: 20%;
 }

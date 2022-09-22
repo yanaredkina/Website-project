@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <form class="search" action="/search" method="post" name='registration' onsubmit="return searchformValidation();">
+    <form class="form" action="/search" method="post" name='registration' onsubmit="return searchformValidation();">
         <p>Поиск по базе данных: </p>
         <ul>
         <li><label for="lastname">Фамилия*</label></li>
@@ -15,12 +15,12 @@
         
         <li><label for="exactMatch">Искать точное совпадение</label></li>
         <li><input type="checkbox" name="exactMatch"/></li>
-              
         <li><input id="input" type="submit" value="Найти"></li>
         </ul>
         <br>
-        <a id="upload" href="{{url_for('upload')}}">Добавить документ</a>
-        <a id="upload_batch" href="{{url_for('upload_batch')}}">Добавить пакет</a>
+        <a class="button" id="all" href="{{url_for('all')}}">Просмотреть все записи</a>
+        <a class="button" id="upload" href="{{url_for('upload')}}">Добавить документ</a>
+        <a class="button" id="upload_batch" href="{{url_for('upload_batch')}}">Добавить пакет</a>
     </form>
 
 {% endblock %}

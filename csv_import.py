@@ -1,8 +1,8 @@
 import csv
 from insert_batch import insert_batch, DBobj
 
-def csv_import(csvFile):
-    reader = csv.reader(csvFile, delimiter=';')   
+def csv_import(csvFileStream):
+    reader = csv.reader(csvFileStream, delimiter=';')   
 
     batch = []
 
