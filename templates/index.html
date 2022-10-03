@@ -1,28 +1,18 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <form class="form" action="/search" method="post" name='registration' onsubmit="return searchformValidation();">
-        <p>Поиск по базе данных: </p>
+    <form class="form" id="reg" action="{{url_for('search_form')}}" method="post">
         <ul>
-        <li><label for="lastname">Фамилия*</label></li>
-        <li><input type="text" name="lastname" value="{{ request.form.lastname}}" required /></li>
-        
-        <li><label for="firstname">Имя</label></li>
-        <li><input type="text" name="firstname" value="{{ request.form.firstname}}" /></li>
-        
-        <li><label for="middlename">Отчество</label></li>
-        <li><input type="text" name="middlename" value="{{ request.form.middlename}}" /></li>
-        
-        <li><label for="exactMatch">Искать точное совпадение</label></li>
-        <li><input type="checkbox" name="exactMatch"/></li>
-        <li><input id="input" type="submit" value="Найти"></li>
+        <li><label for="username">Ваше имя:</label></li>
+        <li><input type="text" name="username" required/></li>
+        <li><label for="username">Выберите роль:</label></li>
+        <li><select id="role" name="role">
+            <option value="guest">Гость</option>
+            <option value="administrator">Администратор</option>
+        </select></li>
+        <li><input id="input" type="submit" value="Войти"></li>
         </ul>
-        <br>
-        <a class="button" id="all" href="{{url_for('all')}}">Просмотреть все записи</a>
-        <a class="button" id="upload" href="{{url_for('upload')}}">Добавить документ</a>
-        <a class="button" id="upload_batch" href="{{url_for('upload_batch')}}">Добавить пакет</a>
+
     </form>
 
 {% endblock %}
-
-

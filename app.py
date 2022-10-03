@@ -17,10 +17,22 @@ def get_db_connection():
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'my secret key'
 app.config['UPLOAD_FOLDER'] = 'documents/'
+app.config['ROLE'] = ''
     
 @app.route('/')
 def index():
     return render_template('index.html')
+    
+    
+@app.route('/search_form', methods=('GET', 'POST'))
+def search_form():
+    if request.method == 'POST':
+        role = request.form.get('role')
+        app.config['ROLE'] = role
+        return render_template('search.html', role=role)
+    
+    return render_template('search.html', role=app.config['ROLE'])
+    
 
 @app.route('/search', methods=['POST'])
 def search():
@@ -55,8 +67,8 @@ def search():
     conn.close()
     if not registry:
         flash('Ничего не найдено!')
-        return redirect(url_for('index'))
-    return render_template("search.html", rows = registry, arg=arguments)
+        return redirect(url_for('search'))
+    return render_template("search_results.html", rows = registry, arg=arguments)
 
     
 @app.route('/content/<int:ident>')
@@ -97,7 +109,7 @@ def upload():
         try: 
             insert_batch(batch)
             flash("Запись успешно добавлена")
-            return redirect(url_for('index'))
+            return redirect(url_for('search'))
         
         except Exception as error:
             flash("Ошибка выполнения запроса: ")
@@ -123,7 +135,7 @@ def upload_batch():
         try:
             csv_import(stream)
             flash("Пакет успешно добавлен")
-            return redirect(url_for('index'))
+            return redirect(url_for('search'))
             
         except Exception as error:
             flash("Ошибка выполнения запроса: ")
@@ -143,7 +155,7 @@ def all():
     conn.close()
     if not result:
         flash('Ничего не найдено!')
-        return redirect(url_for('index'))
+        return redirect(url_for('search'))
     return render_template("all.html", rows = result)
     
 
@@ -160,9 +172,9 @@ def search_ID(ident):
     conn.close()
     if not result:
         flash('Ничего не найдено!')
-        return redirect(url_for('index'))
+        return redirect(url_for('search'))
     arguments = [result[0][0], result[0][1], result[0][2]]
-    return render_template("search.html", rows = result, arg=arguments)
+    return render_template("search_results.html", rows = result, arg=arguments)
     
     
 @app.route('/download_report/<ftype>')

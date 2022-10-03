@@ -1,5 +1,8 @@
 {% extends 'base.html' %}
 
+{% block back %} <a href="{{ url_for('search_form')}}" > К поиску </a>
+{% endblock %}
+
 {% block content %}
     <br>
     <h2>Выгрузить список в файл: <a href='{{ url_for("download_report", ftype = "csv")}}'> csv </a>

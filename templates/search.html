@@ -1,16 +1,30 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <br>
-    <h2>Результаты поиска: 
-        {% for indx in arg %}
-            {{indx}}
-        {% endfor %}
-    </h2>
-    {% for row in rows %}
-        <a id="text-ref" href='{{ url_for("content", ident = row[5])}}#page={{row[4]}}' target="_blank">{{row[3]}} Строка {{row[4]}}</a>
+    <form class="form" action="/search" method="post" name='registration' onsubmit="return searchformValidation();">
+        <p>Поиск по базе данных: </p>
+        <ul>
+        <li><label for="lastname">Фамилия*</label></li>
+        <li><input type="text" name="lastname" value="{{ request.form.lastname}}" required /></li>
+        
+        <li><label for="firstname">Имя</label></li>
+        <li><input type="text" name="firstname" value="{{ request.form.firstname}}" /></li>
+        
+        <li><label for="middlename">Отчество</label></li>
+        <li><input type="text" name="middlename" value="{{ request.form.middlename}}" /></li>
+        
+        <li><label for="exactMatch">Искать точное совпадение</label></li>
+        <li><input type="checkbox" name="exactMatch"/></li>
+        <li><input id="input" type="submit" value="Найти"></li>
+        </ul>
         <br>
-    </div>
-    {% endfor %}
+        <a class="button" id="all" href="{{url_for('all')}}">Просмотреть все записи</a>
+        {% if role != "guest" %}
+            <a class="button" id="upload" href="{{url_for('upload')}}">Добавить документ</a>
+            <a class="button" id="upload_batch" href="{{url_for('upload_batch')}}">Добавить пакет</a>
+        {% endif %}
+    </form>
 
 {% endblock %}
+
+

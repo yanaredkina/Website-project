@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block back %} <a href="{{ url_for('search_form')}}" > К поиску </a>
+{% endblock %}
+
+{% block content %}
+    <br>
+    <h2>Результаты поиска: 
+        {% for indx in arg %}
+            {{indx}}
+        {% endfor %}
+    </h2>
+    {% for row in rows %}
+        <a id="text-ref" href='{{ url_for("content", ident = row[5])}}#page={{row[4]}}' target="_blank">{{row[3]}} Строка {{row[4]}}</a>
+        <br>
+    </div>
+    {% endfor %}
+
+{% endblock %}
