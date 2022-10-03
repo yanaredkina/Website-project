@@ -1,7 +1,8 @@
 import sqlite3
-from flask import Flask, render_template, request, url_for, flash, redirect, send_file
+from flask import Flask, render_template, request, url_for, flash, redirect, send_file, Response
 from insert_batch import insert_batch, DBobj
 from csv_import import csv_import
+import csv
 from io import StringIO
         
 def sql_lower(value):
@@ -162,3 +163,35 @@ def search_ID(ident):
         return redirect(url_for('index'))
     arguments = [result[0][0], result[0][1], result[0][2]]
     return render_template("search.html", rows = result, arg=arguments)
+    
+    
+@app.route('/download_report/<ftype>')
+def download_report(ftype):
+    conn = get_db_connection()
+    query = """SELECT Persons.ID, Persons.LastName, Persons.FirstName, Persons.MiddleName
+                               FROM Persons
+                               GROUP BY Persons.ID"""
+    result = conn.execute(query).fetchall()
+    conn.close()
+    
+    
+    if (ftype == 'csv'):
+        output = StringIO()
+        writer = csv.writer(output)
+        mimetype = "text/csv"
+        filename = "report.csv"
+    
+        for row in result:
+            line = [str(row[1]) + ';' + str(row[2]) + ';' + str(row[3])]
+            writer.writerow(line)
+        output.seek(0)
+    
+    else:
+        output = ""
+        for row in result:
+            output += str(row[1]) + ' ' + str(row[2]) + ' ' + str(row[3]) + '\n'
+        mimetype = "text/plain"
+        filename = "report.txt"
+    
+    return Response(output, mimetype=mimetype, headers={"Content-Disposition":"attachment; filename=%s" %filename})
+    
