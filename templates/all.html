@@ -1,16 +1,14 @@
 {% extends 'base.html' %}
 
-{% block back %} <a href="{{ url_for('search_form')}}" > К поиску </a>
-{% endblock %}
+{% block title %} <title>Записи</title> {% endblock %}
 
 {% block content %}
-    <br>
     <h2>Выгрузить список в файл: <a href='{{ url_for("download_report", ftype = "csv")}}'> csv </a>
                                  <a href='{{ url_for("download_report", ftype = "txt")}}'> txt </a>
     </h2>
     {% for row in rows %}
-        <p id="list">{{row[1]}} {{row[2]}} {{row[3]}} <a href='{{ url_for("search_ID", ident = row[0])}}' target="_blank">Документы</a>  
-        </p>
+        <a id="doc-ref" href='{{ url_for("search_ID", ident = row[0])}}' target="_blank">{{row[1]}} {{row[2]}} {{row[3]}}</a>
+        <br>
 
     </div>
     {% endfor %}

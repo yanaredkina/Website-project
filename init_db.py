@@ -95,48 +95,48 @@ cur.execute("INSERT INTO ReportRegistry (FileID, ReportID) VALUES (?, ?)",
             )                
                  
             
-cur.execute("INSERT INTO PersonRegistry (PersonID, FileID, ReportID, Page) VALUES (?, ?, ?, ?)",
-            (1, 1, 1, 2)
+cur.execute("INSERT INTO PersonRegistry (PersonID, FileID, ReportID, PersonalCase, Page) VALUES (?, ?, ?, ?, ?)",
+            (1, 1, 1, 1, 2)
             )
             
-cur.execute("INSERT INTO PersonRegistry (PersonID, FileID, ReportID, Page) VALUES (?, ?, ?, ?)",
-            (1, 5, 3, 1)
+cur.execute("INSERT INTO PersonRegistry (PersonID, FileID, ReportID, PersonalCase, Page) VALUES (?, ?, ?, ?, ?)",
+            (1, 5, 3, 1, 1)
             )
             
-cur.execute("INSERT INTO PersonRegistry (PersonID, FileID, ReportID, Page) VALUES (?, ?, ?, ?)",
-            (2, 3, 2, 2)
+cur.execute("INSERT INTO PersonRegistry (PersonID, FileID, ReportID, PersonalCase, Page) VALUES (?, ?, ?, ?, ?)",
+            (2, 3, 2, 2, 2)
             )
 
-cur.execute("INSERT INTO PersonRegistry (PersonID, FileID, ReportID, Page) VALUES (?, ?, ?, ?)",
-            (2, 5, 3, 1)
+cur.execute("INSERT INTO PersonRegistry (PersonID, FileID, ReportID, PersonalCase, Page) VALUES (?, ?, ?, ?, ?)",
+            (2, 5, 3, 2, 1)
             ) 
 
-cur.execute("INSERT INTO PersonRegistry (PersonID, FileID, ReportID, Page) VALUES (?, ?, ?, ?)",
-            (3, 1, 1, 1)
+cur.execute("INSERT INTO PersonRegistry (PersonID, FileID, ReportID, PersonalCase, Page) VALUES (?, ?, ?, ?, ?)",
+            (3, 1, 1, 3, 1)
             ) 
             
-cur.execute("INSERT INTO PersonRegistry (PersonID, FileID, ReportID, Page) VALUES (?, ?, ?, ?)",
-            (3, 2, 2, 1)
+cur.execute("INSERT INTO PersonRegistry (PersonID, FileID, ReportID, PersonalCase, Page) VALUES (?, ?, ?, ?, ?)",
+            (3, 2, 2, 3, 1)
             ) 
             
-cur.execute("INSERT INTO PersonRegistry (PersonID, FileID, ReportID, Page) VALUES (?, ?, ?, ?)",
-            (3, 5, 3, 1)
+cur.execute("INSERT INTO PersonRegistry (PersonID, FileID, ReportID, PersonalCase, Page) VALUES (?, ?, ?, ?, ?)",
+            (3, 5, 3, 3, 1)
             ) 
             
-cur.execute("INSERT INTO PersonRegistry (PersonID, FileID, ReportID, Page) VALUES (?, ?, ?, ?)",
-            (4, 2, 2, 1)
+cur.execute("INSERT INTO PersonRegistry (PersonID, FileID, ReportID,PersonalCase, Page) VALUES (?, ?, ?, ?, ?)",
+            (4, 2, 2, 4, 1)
             ) 
             
-cur.execute("INSERT INTO PersonRegistry (PersonID, FileID, ReportID, Page) VALUES (?, ?, ?, ?)",
-            (5, 3, 2, 2)
+cur.execute("INSERT INTO PersonRegistry (PersonID, FileID, ReportID, PersonalCase, Page) VALUES (?, ?, ?, ?, ?)",
+            (5, 3, 2, 5, 2)
             ) 
             
-cur.execute("INSERT INTO PersonRegistry (PersonID, FileID, ReportID, Page) VALUES (?, ?, ?, ?)",
-            (6, 4, 2, 3)
+cur.execute("INSERT INTO PersonRegistry (PersonID, FileID, ReportID, PersonalCase, Page) VALUES (?, ?, ?, ?, ?)",
+            (6, 4, 2, 6, 3)
             ) 
             
-cur.execute("INSERT INTO PersonRegistry (PersonID, FileID, ReportID, Page) VALUES (?, ?, ?, ?)",
-            (7, 4, 2, 3)
+cur.execute("INSERT INTO PersonRegistry (PersonID, FileID, ReportID, PersonalCase, Page) VALUES (?, ?, ?, ?, ?)",
+            (7, 4, 2, 7, 3)
             ) 
                      
 connection.commit()

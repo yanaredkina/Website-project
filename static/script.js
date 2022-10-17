@@ -19,9 +19,9 @@ function isNumber(input) {
 }
 
 function searchformValidation() {
-    var lastname = document.registration.lastname.value;
-    var firstname = document.registration.firstname.value;
-    var middlename = document.registration.middlename.value;
+    var lastname = document.search.lastname.value;
+    var firstname = document.search.firstname.value;
+    var middlename = document.search.middlename.value;
     
     if (!allLetter(lastname)) {
         return false;
@@ -68,4 +68,16 @@ function uploadformValidation() {
     }
     
     return true;
+}
+
+
+function show_image(src, width, height, alt) {
+    var img = document.createElement("img");
+    img.src = src;
+    img.width = width;
+    img.height = height;
+    img.alt = alt;
+
+    // This next line will just add it to the <body> tag
+    document.body.appendChild(img);
 }

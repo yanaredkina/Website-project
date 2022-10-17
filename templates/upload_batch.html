@@ -1,14 +1,13 @@
 {% extends 'base.html' %}
 
-{% block back %} <a href="{{ url_for('search_form')}}" > К поиску </a>
-{% endblock %}
+{% block title %} <title>Добавление записи</title> {% endblock %}
 
 {% block content %}
 
-    <form class="form" id="update-batch" name="updateform" method="post" enctype=multipart/form-data>
-        <p>Добавьте csv-файл:</p>
+    <form class="form" name="updateform" method="post" enctype=multipart/form-data>
+        <h3>Добавьте csv-файл:</h3>
         <ul>
-        <li><input id="fileupload" name="file" type="file"/><li>
+        <li><input name="file" type="file"/><li>
         <br>
         <li><input id="input" type="submit" value="Добавить"></li>
         </ul>

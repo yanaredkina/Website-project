@@ -2,23 +2,25 @@
 <html>
     <head>
         <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="viewport" content="width=device-width">
         <link rel="stylesheet" href="{{ url_for('static', filename= 'style.css') }}"/>
         <script src="{{ url_for('static', filename= 'script.js') }}"></script>
-        <title>Registry</title>
+        {% block title %} {% endblock %}
     </head>
     
     <body>
-        <a href="{{ url_for('index')}}" >В начало</a>
-        {% block back %} {% endblock %}
-        <h1>Экспериментальный сайт</h1>
-        <br>
-        
-        <div class="container">
-            {% for message in get_flashed_messages() %}
-                <div class="alert">{{ message }}</div>
-            {% endfor %}
-            {% block content %} {% endblock %}
+        <h1>Электронный архив описей</h1>
+        <div class="menu">
+        <a href="{{ url_for('index')}}">Главная</a>
+        <a href="{{url_for('search_form')}}">Поиск</a>
+        <a href="{{ url_for('all')}}">Все записи</a>
+        <a href="{{ url_for('upload')}}">Добавить запись</a>
+        <a href="{{ url_for('upload_batch')}}">Добавить опись</a>
         </div>
+        
+        {% block content %} {% endblock %}
+        {% for message in get_flashed_messages() %}
+            <div class="alert">{{ message }}</div>
+        {% endfor %}
     </body>
 </html>

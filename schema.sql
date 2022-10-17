@@ -41,6 +41,7 @@ CREATE TABLE PersonRegistry (
     PersonID INTEGER,
     FileID INTEGER,
     ReportID INTEGER,
+    PersonalCase INTEGER,
     Page INTEGER,
     FOREIGN KEY (PersonID) REFERENCES Persons (ID)
     FOREIGN KEY (FileID) REFERENCES Files (ID)

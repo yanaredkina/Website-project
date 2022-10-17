@@ -1,7 +1,7 @@
 import sqlite3
 from flask import Flask, render_template, request, url_for, flash, redirect, send_file, Response
 from insert_batch import insert_batch, DBobj
-from csv_import import csv_import
+from csv_check import csv_check
 import csv
 from io import StringIO
         
@@ -17,26 +17,20 @@ def get_db_connection():
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'my secret key'
 app.config['UPLOAD_FOLDER'] = 'documents/'
-app.config['ROLE'] = ''
     
 @app.route('/')
 def index():
     return render_template('index.html')
     
     
-@app.route('/search_form', methods=('GET', 'POST'))
+@app.route('/search_form')
 def search_form():
-    if request.method == 'POST':
-        role = request.form.get('role')
-        app.config['ROLE'] = role
-        return render_template('search.html', role=role)
-    
-    return render_template('search.html', role=app.config['ROLE'])
+    return render_template('search.html')
     
 
 @app.route('/search', methods=['POST'])
 def search():
-    query = """SELECT Persons.LastName, Persons.FirstName, Persons.MiddleName, Reports.Name, PersonRegistry.Page, Files.ID
+    query = """SELECT Persons.LastName, Persons.FirstName, Persons.MiddleName, Reports.Name, PersonRegistry.Page, Files.ID, Files.FilePath
                                FROM Persons INNER JOIN PersonRegistry ON Persons.ID=PersonRegistry.PersonID 
                                             INNER JOIN Reports on PersonRegistry.ReportID=Reports.ID 
                                             INNER JOIN Files on PersonRegistry.FileID=Files.ID 
@@ -67,7 +61,7 @@ def search():
     conn.close()
     if not registry:
         flash('Ничего не найдено!')
-        return redirect(url_for('search'))
+        return redirect(url_for('search_form'))
     return render_template("search_results.html", rows = registry, arg=arguments)
 
     
@@ -92,6 +86,7 @@ def upload():
         note = request.form['note']
         report = request.form['report']
         year = request.form['year']
+        personalcase = request.form['personalcase']
         page = request.form['page']
         fileobj = request.files['file']     
         
@@ -103,13 +98,13 @@ def upload():
         fileobj.save(filepath)
         filetype = fileobj.filename.split('.')[-1]
             
-        obj = DBobj(lastname, firstname, middlename, note, report, year, page, filetype, filepath)
+        obj = DBobj(lastname, firstname, middlename, note, report, personalcase, year, filepath, page, filetype)
         batch = [obj]
         
         try: 
             insert_batch(batch)
             flash("Запись успешно добавлена")
-            return redirect(url_for('search'))
+            return redirect(url_for('search_form'))
         
         except Exception as error:
             flash("Ошибка выполнения запроса: ")
@@ -132,15 +127,22 @@ def upload_batch():
         
         bytes = fileobj.read().decode('utf8')
         stream = StringIO(bytes)
-        try:
-            csv_import(stream)
+        #try:
+        
+        errors = csv_check(stream)
+        if len(errors) > 0:
+            flash("Пакет добавлен с исключениями") #не появляется, тк нет больше отрисовки страницы
+            return Response(errors, mimetype="text/plain", headers={"Content-Disposition":"attachment; filename=errors-report.txt"})
+        else:
             flash("Пакет успешно добавлен")
-            return redirect(url_for('search'))
-            
+        return render_template('upload_batch.html')
+        
+        '''''    
         except Exception as error:
             flash("Ошибка выполнения запроса: ")
             flash(' '.join(error.args))
             return render_template('upload_batch.html')
+        '''
         
     return render_template('upload_batch.html')
     

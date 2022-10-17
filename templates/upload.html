@@ -1,12 +1,11 @@
 {% extends 'base.html' %}
 
-{% block back %} <a href="{{ url_for('search_form')}}" > К поиску </a>
-{% endblock %}
+{% block title %} <title>Добавление записи</title> {% endblock %}
 
 {% block content %}
 
     <form class="form" id="up-form" name="updateform" method="post" enctype=multipart/form-data onsubmit="return uploadformValidation();">
-        <p>Заполните поля: </p>
+        <h3>Заполните поля: </h3>
         <ul>
         <li><label for="lastname">Фамилия*</label></li>
         <li><input type="text" name="lastname" value="{{ request.form.lastname}}" required /></li>
@@ -25,6 +24,9 @@
         
         <li><label for="year">Год отчета*</label></li>
         <li><input type="text" name="year" value="{{ request.form.year}}" required/></li>
+        
+        <li><label for="personalcase">Номер личного дела*</label></li>
+        <li><input type="text" name="personalcase" value="{{ request.form.page}}" required/></li>
         
         <li><label for="page">Страница*</label></li>
         <li><input type="text" name="page" value="{{ request.form.page}}" required/></li>

@@ -1,8 +1,10 @@
 {% extends 'base.html' %}
 
+{% block title %} <title>Поиск</title> {% endblock %}
+
 {% block content %}
-    <form class="form" action="/search" method="post" name='registration' onsubmit="return searchformValidation();">
-        <p>Поиск по базе данных: </p>
+    <form class="form" action="/search" method="post" name='search' onsubmit="return searchformValidation();">
+        <h3>Поиск по базе данных: </h3>
         <ul>
         <li><label for="lastname">Фамилия*</label></li>
         <li><input type="text" name="lastname" value="{{ request.form.lastname}}" required /></li>
@@ -17,12 +19,6 @@
         <li><input type="checkbox" name="exactMatch"/></li>
         <li><input id="input" type="submit" value="Найти"></li>
         </ul>
-        <br>
-        <a class="button" id="all" href="{{url_for('all')}}">Просмотреть все записи</a>
-        {% if role != "guest" %}
-            <a class="button" id="upload" href="{{url_for('upload')}}">Добавить документ</a>
-            <a class="button" id="upload_batch" href="{{url_for('upload_batch')}}">Добавить пакет</a>
-        {% endif %}
     </form>
 
 {% endblock %}

@@ -1,18 +1,11 @@
 {% extends 'base.html' %}
 
-{% block content %}
-    <form class="form" id="reg" action="{{url_for('search_form')}}" method="post">
-        <ul>
-        <li><label for="username">Ваше имя:</label></li>
-        <li><input type="text" name="username" required/></li>
-        <li><label for="username">Выберите роль:</label></li>
-        <li><select id="role" name="role">
-            <option value="guest">Гость</option>
-            <option value="administrator">Администратор</option>
-        </select></li>
-        <li><input id="input" type="submit" value="Войти"></li>
-        </ul>
+{% block title %}<title>Главная</title>{% endblock %}
 
+{% block content %}
+    <form class="form">
+        <h3>Добро пожаловать на сайт!</h3>
+        <p>На сайте представлена электронная система просмотра, поиска, добавления архивных описей студентов МГУ</p>
     </form>
 
 {% endblock %}
