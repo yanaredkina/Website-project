@@ -5,7 +5,8 @@ CREATE TABLE Persons (
     LastName TEXT NOT NULL,
     FirstName TEXT,
     MiddleName TEXT,
-    Note TEXT
+    Note TEXT,
+    PersonalCaseDir TEXT
 );
 
 DROP TABLE IF EXISTS Files;

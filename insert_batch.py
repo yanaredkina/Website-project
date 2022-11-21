@@ -2,10 +2,11 @@ import sqlite3
 from flask import Flask, flash
 
 class DBobj:
-    def __init__(self, lastname, firstname, middlename, note, report, personalcase, year, filepath, page, filetype):
+    def __init__(self, lastname, firstname, middlename, personalcasedir, note, report, personalcase, year, filepath, page, filetype):
         self.lastname = lastname
         self.firstname = firstname
         self.middlename = middlename
+        self.personalcasedir = personalcasedir
         self.note = note
         self.report = report
         self.year = year
@@ -18,15 +19,17 @@ class DBobj:
         return str(self.lastname) + ' ' + str(self.firstname) + ' ' + str(self.middlename) + ' '
 
 
-def insert_batch(batch, errors):
+def insert_batch(batch, protocol, mode):
     connection = sqlite3.connect('database.db')
     cursor = connection.cursor()
-        
+    
+    protocol += "----- ERRORS when uploading to the database: \n\n"
+    
     for obj in batch:
         
         try:
-            cursor.execute("INSERT INTO Persons (LastName, FirstName, MiddleName, Note) VALUES (?, ?, ?, ?)",
-                         (obj.lastname, obj.firstname, obj.middlename, obj.note))
+            cursor.execute("INSERT INTO Persons (LastName, FirstName, MiddleName, PersonalCaseDir, Note) VALUES (?, ?, ?, ?, ?)",
+                         (obj.lastname, obj.firstname, obj.middlename, obj.personalcasedir, obj.note))
             lastpersonID = cursor.lastrowid
 
             cursor.execute("INSERT INTO Files (Type, FilePath) VALUES (?, ?)",
@@ -42,22 +45,18 @@ def insert_batch(batch, errors):
                         
             cursor.execute("INSERT INTO PersonRegistry (PersonID, FileID, ReportID, PersonalCase, Page) VALUES (?, ?, ?, ?, ?)",
                         (lastpersonID, lastfileID, lastreportID, obj.personalcase, obj.page))
-                
+
         
         except sqlite3.Error as e:
-            errors += str(obj) + " ERROR: "+ str(e.args) + '\n'
-            
-    connection.commit()
+            protocol += str(obj) + " ERROR: "+ str(e.args) + '\n'
+        
+        else:
+            if (mode == 'prod'):
+                connection.commit()
     
-    '''''    
-    except sqlite3.Error as e:
-        if connection: 
-            connection.rollback()
-        raise Exception(' '.join(e.args))
-    
-    '''   
-    
-    if connection: 
+
+    if connection:
+        cursor.close()
         connection.close()
     
-    return errors
+    return protocol

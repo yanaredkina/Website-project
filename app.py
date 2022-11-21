@@ -3,8 +3,10 @@ from flask import Flask, render_template, request, url_for, flash, redirect, sen
 from insert_batch import insert_batch, DBobj
 from csv_check import csv_check
 import csv
-from io import StringIO
-        
+import os.path
+from io import StringIO, BytesIO
+  
+      
 def sql_lower(value):
     return value.lower()
 
@@ -30,7 +32,7 @@ def search_form():
 
 @app.route('/search', methods=['POST'])
 def search():
-    query = """SELECT Persons.LastName, Persons.FirstName, Persons.MiddleName, Reports.Name, PersonRegistry.Page, Files.ID, Files.FilePath
+    query = """SELECT Persons.LastName, Persons.FirstName, Persons.MiddleName, Persons.PersonalCaseDir, Reports.Name, PersonRegistry.Page, Files.ID
                                FROM Persons INNER JOIN PersonRegistry ON Persons.ID=PersonRegistry.PersonID 
                                             INNER JOIN Reports on PersonRegistry.ReportID=Reports.ID 
                                             INNER JOIN Files on PersonRegistry.FileID=Files.ID 
@@ -76,94 +78,38 @@ def content(ident):
         return send_file(result[0], mimetype='application/pdf')
 
 
-
-@app.route('/upload', methods=('GET', 'POST'))
-def upload():
-    if request.method == 'POST':
-        lastname = request.form['lastname']
-        firstname = request.form['firstname']
-        middlename = request.form['middlename']
-        note = request.form['note']
-        report = request.form['report']
-        year = request.form['year']
-        personalcase = request.form['personalcase']
-        page = request.form['page']
-        fileobj = request.files['file']     
-        
-        if not fileobj:
-            flash('Нет выбранного файла')
-            return render_template('upload.html')
-            
-        filepath = app.config['UPLOAD_FOLDER'] + fileobj.filename
-        fileobj.save(filepath)
-        filetype = fileobj.filename.split('.')[-1]
-            
-        obj = DBobj(lastname, firstname, middlename, note, report, personalcase, year, filepath, page, filetype)
-        batch = [obj]
-        
-        try: 
-            insert_batch(batch)
-            flash("Запись успешно добавлена")
-            return redirect(url_for('search_form'))
-        
-        except Exception as error:
-            flash("Ошибка выполнения запроса: ")
-            flash(' '.join(error.args))
-            return render_template('upload.html')
-
-    return render_template('upload.html')
-
-@app.route('/upload_batch', methods=('GET', 'POST'))
-def upload_batch():
-    if request.method == 'POST':
-        fileobj = request.files['file']  
-        if not fileobj:
-            flash('Нет выбранного файла')
-            return render_template('upload_batch.html')
-        
-        if (fileobj.filename.split('.')[-1] != 'csv'):
-            flash('Файл неверного формата')
-            return render_template('upload_batch.html')
-        
-        bytes = fileobj.read().decode('utf8')
-        stream = StringIO(bytes)
-        #try:
-        
-        errors = csv_check(stream)
-        if len(errors) > 0:
-            flash("Пакет добавлен с исключениями") #не появляется, тк нет больше отрисовки страницы
-            return Response(errors, mimetype="text/plain", headers={"Content-Disposition":"attachment; filename=errors-report.txt"})
-        else:
-            flash("Пакет успешно добавлен")
-        return render_template('upload_batch.html')
-        
-        '''''    
-        except Exception as error:
-            flash("Ошибка выполнения запроса: ")
-            flash(' '.join(error.args))
-            return render_template('upload_batch.html')
-        '''
-        
-    return render_template('upload_batch.html')
-    
-    
-@app.route('/all', methods=['GET'])
+@app.route('/all')
 def all():
-    query = """SELECT Persons.ID, Persons.LastName, Persons.FirstName, Persons.MiddleName
-                               FROM Persons
-                               GROUP BY Persons.ID"""
+    # query = """SELECT Persons.ID, Persons.LastName, Persons.FirstName, Persons.MiddleName
+    #                            FROM Persons
+    #                            ORDER BY Persons.LastName"""
+    # conn = get_db_connection()
+    # result = conn.execute(query).fetchall()
+    # conn.close()
+    # if not result:
+    #     flash('Ничего не найдено!')
+    #     return redirect(url_for('index'))
+    #
+    # return render_template("all.html", rows = result)
+    query = """SELECT Persons.ID, Persons.LastName, Persons.FirstName, Persons.MiddleName, Persons.PersonalCaseDir, Reports.Name, PersonRegistry.Page, Files.ID, Files.FilePath
+                               FROM Persons INNER JOIN PersonRegistry ON Persons.ID=PersonRegistry.PersonID
+                                            INNER JOIN Reports on PersonRegistry.ReportID=Reports.ID
+                                            INNER JOIN Files on PersonRegistry.FileID=Files.ID
+                               ORDER BY Persons.LastName """
     conn = get_db_connection()
     result = conn.execute(query).fetchall()
     conn.close()
     if not result:
         flash('Ничего не найдено!')
-        return redirect(url_for('search'))
+        return redirect(url_for('index'))
+
     return render_template("all.html", rows = result)
+  
     
 
 @app.route('/search_ID/<int:ident>')
 def search_ID(ident):
-    query = """SELECT Persons.LastName, Persons.FirstName, Persons.MiddleName, Reports.Name, PersonRegistry.Page, Files.ID
+    query = """SELECT Persons.LastName, Persons.FirstName, Persons.MiddleName, Persons.PersonalCaseDir, Reports.Name, PersonRegistry.Page, Files.ID
                                FROM Persons INNER JOIN PersonRegistry ON Persons.ID=PersonRegistry.PersonID 
                                             INNER JOIN Reports on PersonRegistry.ReportID=Reports.ID 
                                             INNER JOIN Files on PersonRegistry.FileID=Files.ID 
@@ -182,30 +128,111 @@ def search_ID(ident):
 @app.route('/download_report/<ftype>')
 def download_report(ftype):
     conn = get_db_connection()
-    query = """SELECT Persons.ID, Persons.LastName, Persons.FirstName, Persons.MiddleName
+    query = """SELECT Persons.LastName, Persons.FirstName, Persons.MiddleName
                                FROM Persons
-                               GROUP BY Persons.ID"""
+                               ORDER BY Persons.LastName"""
     result = conn.execute(query).fetchall()
     conn.close()
     
+    proxy = StringIO()
+    writer = csv.writer(proxy)
+    writer.writerows(result)
+    mem = BytesIO()
+    mem.write(proxy.getvalue().encode())
+    mem.seek(0)
+    proxy.close()
     
     if (ftype == 'csv'):
-        output = StringIO()
-        writer = csv.writer(output)
         mimetype = "text/csv"
         filename = "report.csv"
-    
-        for row in result:
-            line = [str(row[1]) + ';' + str(row[2]) + ';' + str(row[3])]
-            writer.writerow(line)
-        output.seek(0)
-    
     else:
-        output = ""
-        for row in result:
-            output += str(row[1]) + ' ' + str(row[2]) + ' ' + str(row[3]) + '\n'
         mimetype = "text/plain"
         filename = "report.txt"
+        
+    return send_file(mem, as_attachment=True, attachment_filename=filename, mimetype=mimetype)
     
-    return Response(output, mimetype=mimetype, headers={"Content-Disposition":"attachment; filename=%s" %filename})
+
+@app.route('/upload', methods=['GET', 'POST'])
+def upload():
+    if request.method == 'POST':
+        lastname = request.form['lastname']
+        firstname = request.form['firstname']
+        middlename = request.form['middlename']
+        personalcasedir = request.form['personalcasedir']
+        note = request.form['note']
+        report = request.form['report']
+        year = request.form['year']
+        personalcase = request.form['personalcase']
+        page = request.form['page']
+        fileobj = request.files['file']
+        
+        #add cheking personalcasedir
+        
+        if not fileobj:
+            flash('Нет выбранного файла')
+            return render_template('upload.html')
+            
+        filepath = app.config['UPLOAD_FOLDER'] + fileobj.filename
+        fileobj.save(filepath)
+        filetype = fileobj.filename.split('.')[-1]
+            
+        obj = DBobj(lastname, firstname, middlename, personalcasedir, note, report, personalcase, year, filepath, page, filetype)
+        batch = [obj]
+        
+        try: 
+            insert_batch(batch)
+            flash("Запись успешно добавлена")
+            return redirect(url_for('search_form'))
+        
+        except Exception as error:
+            flash("Ошибка выполнения запроса: ")
+            flash(' '.join(error.args))
+            return render_template('upload.html')
+
+    return render_template('upload.html')
+
+
+@app.route('/upload_batch', methods=['GET', 'POST'])
+def upload_batch():
+    if request.method == 'POST':
+        mode = request.form.get('mode')
+        fileobj = request.files['file']  
+        if not fileobj:
+            flash('Нет выбранного файла')
+            return render_template('upload_batch.html')
+        
+        if (fileobj.filename.split('.')[-1] != 'csv'):
+            flash('Файл неверного формата')
+            return render_template('upload_batch.html')
+        
+        bytes = fileobj.read().decode('utf8')
+        stream = StringIO(bytes)
+        
+        if (mode == 'test'):
+            protocol = csv_check(stream, app.config['UPLOAD_FOLDER'], 'test')
+        else:
+            protocol = csv_check(stream, app.config['UPLOAD_FOLDER'], 'prod')
+        return Response(protocol, mimetype="text/plain", headers={"Content-Disposition":"attachment; filename=uploadprotocol.txt"})
+        
+    return render_template('upload_batch.html')
     
+
+@app.route('/display_by_char/<char>')
+def display_by_char(char):
+    # query = """SELECT Persons.ID, Persons.LastName, Persons.FirstName, Persons.MiddleName
+    #                            FROM Persons
+    #                            WHERE sql_lower(Persons.LastName) LIKE ?
+    #                            ORDER BY Persons.LastName """
+    query = """SELECT Persons.ID, Persons.LastName, Persons.FirstName, Persons.MiddleName, Persons.PersonalCaseDir, Reports.Name, PersonRegistry.Page, Files.ID
+                               FROM Persons INNER JOIN PersonRegistry ON Persons.ID=PersonRegistry.PersonID 
+                                            INNER JOIN Reports on PersonRegistry.ReportID=Reports.ID 
+                                            INNER JOIN Files on PersonRegistry.FileID=Files.ID
+                               WHERE sql_lower(Persons.LastName) LIKE ? 
+                               ORDER BY Persons.LastName """
+    
+    conn = get_db_connection()
+    result = conn.execute(query, (char + '%', )).fetchall()
+    conn.close()
+    if not result:
+        flash('Ничего не найдено!')
+    return render_template("all.html", rows = result)

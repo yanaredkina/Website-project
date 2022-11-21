@@ -3,14 +3,54 @@
 {% block title %} <title>Записи</title> {% endblock %}
 
 {% block content %}
-    <h2>Выгрузить список в файл: <a href='{{ url_for("download_report", ftype = "csv")}}'> csv </a>
-                                 <a href='{{ url_for("download_report", ftype = "txt")}}'> txt </a>
+    
+    <div class="get_all_list">
+    <ul class="name_list">
+        <li class="все"><a href='{{ url_for("all")}}'>все</a></li>
+    	<li class="a"><a href='{{ url_for("display_by_char", char = "а")}}'>а</a></li>
+    	<li class="b"><a href='{{ url_for("display_by_char", char = "б")}}'>б</a></li>
+    	<li class="v"><a href='{{ url_for("display_by_char", char = "в")}}'>в</a></li>
+    	<li class="g"><a href='{{ url_for("display_by_char", char = "г")}}'>г</a></li>
+    	<li class="d"><a href='{{ url_for("display_by_char", char = "д")}}'>д</a></li>
+    	<li class="e"><a href='{{ url_for("display_by_char", char = "е")}}'>е</a></li>
+        <li class="yo"><a href='{{ url_for("display_by_char", char = "ё")}}'>ё</a></li>
+    	<li class="zh"><a href='{{ url_for("display_by_char", char = "ж")}}'>ж</a></li>
+    	<li class="z"><a href='{{ url_for("display_by_char", char = "з")}}'>з</a></li>
+    	<li class="i"><a href='{{ url_for("display_by_char", char = "и")}}'>и</a></li>
+        <li class="ii"><a href='{{ url_for("display_by_char", char = "й")}}'>й</a></li>
+    	<li class="k"><a href='{{ url_for("display_by_char", char = "к")}}'>к</a></li>
+    	<li class="l"><a href='{{ url_for("display_by_char", char = "л")}}'>л</a></li>
+    	<li class="m"><a href='{{ url_for("display_by_char", char = "м")}}'>м</a></li>
+    	<li class="n"><a href='{{ url_for("display_by_char", char = "н")}}'>н</a></li>
+    	<li class="o"><a href='{{ url_for("display_by_char", char = "о")}}'>о</a></li>
+    	<li class="p"><a href='{{ url_for("display_by_char", char = "п")}}'>п</a></li>
+    	<li class="r"><a href='{{ url_for("display_by_char", char = "р")}}'>р</a></li>
+    	<li class="s"><a href='{{ url_for("display_by_char", char = "с")}}'>с</a></li>
+    	<li class="t"><a href='{{ url_for("display_by_char", char = "т")}}'>т</a></li>
+    	<li class="u"><a href='{{ url_for("display_by_char", char = "у")}}'>у</a></li>
+    	<li class="f"><a href='{{ url_for("display_by_char", char = "ф")}}'>ф</a></li>
+    	<li class="h"><a href='{{ url_for("display_by_char", char = "х")}}'>х</a></li>
+    	<li class="ze"><a href='{{ url_for("display_by_char", char = "ц")}}'>ц</a></li>
+    	<li class="ch"><a href='{{ url_for("display_by_char", char = "ч")}}'>ч</a></li>
+    	<li class="sh"><a href='{{ url_for("display_by_char", char = "ш")}}'>ш</a></li>
+        <li class="tsh"><a href='{{ url_for("display_by_char", char = "щ")}}'>щ</a></li>
+    	<li class="ai"><a href='{{ url_for("display_by_char", char = "ы")}}'>ы</a></li>
+    	<li class="ae"><a href='{{ url_for("display_by_char", char = "э")}}'>э</a></li>
+        <li class="yu"><a href='{{ url_for("display_by_char", char = "ю")}}'>ю</a></li>
+        <li class="ya"><a href='{{ url_for("display_by_char", char = "я")}}'>я</a></li>
+    </ul>
+	</div>
+	
+    <h2>Выгрузить весь список в файл: <a href='{{ url_for("download_report", ftype = "csv") }}'> csv </a>
+                                      <a href='{{ url_for("download_report", ftype = "txt") }}'> txt </a>
     </h2>
+    
     {% for row in rows %}
         <a id="doc-ref" href='{{ url_for("search_ID", ident = row[0])}}' target="_blank">{{row[1]}} {{row[2]}} {{row[3]}}</a>
         <br>
-
-    </div>
     {% endfor %}
 
+    
 {% endblock %}
+
+

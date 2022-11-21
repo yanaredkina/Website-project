@@ -9,7 +9,7 @@
         {% endfor %}
     </h2>
     {% for row in rows %}
-        <a id="doc-ref" href='{{ url_for("content", ident = row[5])}}#page={{row[4]}}' target="_blank">Опись № {{row[3]}} Строка {{row[4]}}</a>
+        <a id="doc-ref" href='{{ url_for("content", ident = row[6])}}#page={{row[5]}}' target="_blank">Опись № {{row[4]}} Строка {{row[5]}}</a>
         <br>
     </div>
     {% endfor %}

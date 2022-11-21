@@ -4,12 +4,20 @@
 
 {% block content %}
 
-    <form class="form" name="updateform" method="post" enctype=multipart/form-data>
+    <form class="form" id="update-batch" name="updateform" method="post" enctype=multipart/form-data>
         <h3>Добавьте csv-файл:</h3>
         <ul>
         <li><input name="file" type="file"/><li>
         <br>
-        <li><input id="input" type="submit" value="Добавить"></li>
+        <li><label for="mode">Выберите режим:</label></li>
+        <li><select id="mode" name="mode">
+             <option value="test">Пробная загрузка</option>
+             <option value="prod">Финальная загрузка</option>
+         </select></li>
+        <li><input id="input" type="submit" value="Загрузить"></li>
         </ul>
     </form>
 {% endblock %}
+
+
+        

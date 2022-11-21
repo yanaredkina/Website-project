@@ -112,3 +112,31 @@ input[type=submit] {
 form textarea {
     margin-right: 10px;
 }
+
+
+#get_list jump {
+    
+}
+
+.name_list {
+    text-align: center;
+}
+
+.name_list li {
+    list-style:none;
+    text-align: center;
+    display: inline;
+}
+
+#doc {
+    padding: 2px 2px 2px 20px;
+    font-size: 16px;
+    color: black;
+    text-align: left;
+}
+
+#doc-rep {
+    padding: 2px 2px 2px 20px;
+    font-size: 16px;
+    display: inline;
+}
