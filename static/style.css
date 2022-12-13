@@ -128,15 +128,20 @@ form textarea {
     display: inline;
 }
 
-#doc {
-    padding: 2px 2px 2px 20px;
-    font-size: 16px;
-    color: black;
-    text-align: left;
+
+.doc-display {
+    text-align: center;
+
+
 }
 
-#doc-rep {
-    padding: 2px 2px 2px 20px;
-    font-size: 16px;
-    display: inline;
+#pdf {
+    width: 70%;
+    height: 700px;
+    padding: 5px;
+}
+
+#jpg {
+    width: 600px;
+    height: 800px;
 }

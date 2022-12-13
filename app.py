@@ -2,6 +2,7 @@ import sqlite3
 from flask import Flask, render_template, request, url_for, flash, redirect, send_file, Response
 from insert_batch import insert_batch, DBobj
 from csv_check import csv_check
+from parserCSV import parseCSV
 import csv
 import os.path
 from io import StringIO, BytesIO
@@ -32,7 +33,7 @@ def search_form():
 
 @app.route('/search', methods=['POST'])
 def search():
-    query = """SELECT Persons.LastName, Persons.FirstName, Persons.MiddleName, Persons.PersonalCaseDir, Reports.Name, PersonRegistry.Page, Files.ID
+    query = """SELECT Persons.LastName, Persons.FirstName, Persons.MiddleName, Persons.PersonalCaseDir, Reports.Name, Reports.Year, PersonRegistry.Page, Files.ID, Files.Type
                                FROM Persons INNER JOIN PersonRegistry ON Persons.ID=PersonRegistry.PersonID 
                                             INNER JOIN Reports on PersonRegistry.ReportID=Reports.ID 
                                             INNER JOIN Files on PersonRegistry.FileID=Files.ID 
@@ -80,21 +81,9 @@ def content(ident):
 
 @app.route('/all')
 def all():
-    # query = """SELECT Persons.ID, Persons.LastName, Persons.FirstName, Persons.MiddleName
-    #                            FROM Persons
-    #                            ORDER BY Persons.LastName"""
-    # conn = get_db_connection()
-    # result = conn.execute(query).fetchall()
-    # conn.close()
-    # if not result:
-    #     flash('Ничего не найдено!')
-    #     return redirect(url_for('index'))
-    #
-    # return render_template("all.html", rows = result)
-    query = """SELECT Persons.ID, Persons.LastName, Persons.FirstName, Persons.MiddleName, Persons.PersonalCaseDir, Reports.Name, PersonRegistry.Page, Files.ID, Files.FilePath
-                               FROM Persons INNER JOIN PersonRegistry ON Persons.ID=PersonRegistry.PersonID
-                                            INNER JOIN Reports on PersonRegistry.ReportID=Reports.ID
-                                            INNER JOIN Files on PersonRegistry.FileID=Files.ID
+    query = """SELECT Persons.ID, Persons.LastName, Persons.FirstName, Persons.MiddleName
+                               FROM Persons
+                               GROUP BY Persons.ID
                                ORDER BY Persons.LastName """
     conn = get_db_connection()
     result = conn.execute(query).fetchall()
@@ -103,13 +92,13 @@ def all():
         flash('Ничего не найдено!')
         return redirect(url_for('index'))
 
-    return render_template("all.html", rows = result)
+    return render_template("all.html", rows = result, arg =['%'])
   
     
 
 @app.route('/search_ID/<int:ident>')
 def search_ID(ident):
-    query = """SELECT Persons.LastName, Persons.FirstName, Persons.MiddleName, Persons.PersonalCaseDir, Reports.Name, PersonRegistry.Page, Files.ID
+    query = """SELECT Persons.LastName, Persons.FirstName, Persons.MiddleName, Persons.PersonalCaseDir, Reports.Name, Reports.Year, PersonRegistry.Page, Files.ID, Files.Type
                                FROM Persons INNER JOIN PersonRegistry ON Persons.ID=PersonRegistry.PersonID 
                                             INNER JOIN Reports on PersonRegistry.ReportID=Reports.ID 
                                             INNER JOIN Files on PersonRegistry.FileID=Files.ID 
@@ -125,13 +114,14 @@ def search_ID(ident):
     return render_template("search_results.html", rows = result, arg=arguments)
     
     
-@app.route('/download_report/<ftype>')
-def download_report(ftype):
+@app.route('/download_report/<ftype>,<char>')
+def download_report(ftype, char):
     conn = get_db_connection()
     query = """SELECT Persons.LastName, Persons.FirstName, Persons.MiddleName
                                FROM Persons
+                               WHERE sql_lower(Persons.LastName) LIKE ? 
                                ORDER BY Persons.LastName"""
-    result = conn.execute(query).fetchall()
+    result = conn.execute(query, (char + '%', )).fetchall()
     conn.close()
     
     proxy = StringIO()
@@ -150,7 +140,6 @@ def download_report(ftype):
         filename = "report.txt"
         
     return send_file(mem, as_attachment=True, attachment_filename=filename, mimetype=mimetype)
-    
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
@@ -209,9 +198,11 @@ def upload_batch():
         stream = StringIO(bytes)
         
         if (mode == 'test'):
-            protocol = csv_check(stream, app.config['UPLOAD_FOLDER'], 'test')
+            #protocol = csv_check(stream, app.config['UPLOAD_FOLDER'], 'test')
+            protocol = parseCSV(stream, app.config['UPLOAD_FOLDER'], 'test')
         else:
-            protocol = csv_check(stream, app.config['UPLOAD_FOLDER'], 'prod')
+            #protocol = csv_check(stream, app.config['UPLOAD_FOLDER'], 'prod')
+            protocol = parseCSV(stream, app.config['UPLOAD_FOLDER'], 'prod')
         return Response(protocol, mimetype="text/plain", headers={"Content-Disposition":"attachment; filename=uploadprotocol.txt"})
         
     return render_template('upload_batch.html')
@@ -223,11 +214,12 @@ def display_by_char(char):
     #                            FROM Persons
     #                            WHERE sql_lower(Persons.LastName) LIKE ?
     #                            ORDER BY Persons.LastName """
-    query = """SELECT Persons.ID, Persons.LastName, Persons.FirstName, Persons.MiddleName, Persons.PersonalCaseDir, Reports.Name, PersonRegistry.Page, Files.ID
+    query = """SELECT Persons.ID, Persons.LastName, Persons.FirstName, Persons.MiddleName, Persons.PersonalCaseDir, Reports.Name, Reports.Year, PersonRegistry.Page, Files.ID
                                FROM Persons INNER JOIN PersonRegistry ON Persons.ID=PersonRegistry.PersonID 
                                             INNER JOIN Reports on PersonRegistry.ReportID=Reports.ID 
                                             INNER JOIN Files on PersonRegistry.FileID=Files.ID
                                WHERE sql_lower(Persons.LastName) LIKE ? 
+                               GROUP BY Persons.ID
                                ORDER BY Persons.LastName """
     
     conn = get_db_connection()
@@ -235,4 +227,4 @@ def display_by_char(char):
     conn.close()
     if not result:
         flash('Ничего не найдено!')
-    return render_template("all.html", rows = result)
+    return render_template("all.html", rows = result, arg = [char])

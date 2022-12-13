@@ -41,8 +41,9 @@
     </ul>
 	</div>
 	
-    <h2>Выгрузить весь список в файл: <a href='{{ url_for("download_report", ftype = "csv") }}'> csv </a>
-                                      <a href='{{ url_for("download_report", ftype = "txt") }}'> txt </a>
+    <h2>Выгрузить список в файл: <a href='{{ url_for("download_report", ftype = "csv", char = arg[0]) }}'> csv </a>
+                                 <a href='{{ url_for("download_report", ftype = "txt", char = arg[0]) }}'> txt </a>
+                                  
     </h2>
     
     {% for row in rows %}
