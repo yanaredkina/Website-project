@@ -29,6 +29,7 @@ h3 {
 
 p {
     text-align: center;
+    font-size: 18px;
 }
 
 .menu {
@@ -49,7 +50,7 @@ a:hover {
 
 #doc-ref {
     padding-left: 20px;
-    font-size: 16px;
+    font-size: 18px;
 }
 
 .form {
@@ -114,12 +115,10 @@ form textarea {
 }
 
 
-#get_list jump {
-    
-}
-
 .name_list {
     text-align: center;
+    font-size: 22px;
+    font-weight: bold;
 }
 
 .name_list li {
@@ -131,17 +130,19 @@ form textarea {
 
 .doc-display {
     text-align: center;
-
-
 }
 
 #pdf {
-    width: 70%;
-    height: 700px;
+    width: 80%;
+    height: 850px;
     padding: 5px;
 }
 
 #jpg {
     width: 600px;
     height: 800px;
+}
+
+.names-in-3columns {
+    column-count: 3;
 }

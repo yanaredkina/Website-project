@@ -81,8 +81,8 @@ def content(ident):
 
 @app.route('/all')
 def all():
-    query = """SELECT Persons.ID, Persons.LastName, Persons.FirstName, Persons.MiddleName
-                               FROM Persons
+    query = """SELECT Persons.ID, Persons.LastName, Persons.FirstName, Persons.MiddleName, PersonRegistry.PersonalCase
+                               FROM Persons INNER JOIN PersonRegistry ON Persons.ID=PersonRegistry.PersonID
                                GROUP BY Persons.ID
                                ORDER BY Persons.LastName """
     conn = get_db_connection()
@@ -100,8 +100,8 @@ def all():
 def search_ID(ident):
     query = """SELECT Persons.LastName, Persons.FirstName, Persons.MiddleName, Persons.PersonalCaseDir, Reports.Name, Reports.Year, PersonRegistry.Page, Files.ID, Files.Type
                                FROM Persons INNER JOIN PersonRegistry ON Persons.ID=PersonRegistry.PersonID 
-                                            INNER JOIN Reports on PersonRegistry.ReportID=Reports.ID 
-                                            INNER JOIN Files on PersonRegistry.FileID=Files.ID 
+                                            INNER JOIN Reports ON PersonRegistry.ReportID=Reports.ID 
+                                            INNER JOIN Files ON PersonRegistry.FileID=Files.ID 
                                WHERE Persons.ID = ? """          
                                
     conn = get_db_connection()
@@ -117,8 +117,10 @@ def search_ID(ident):
 @app.route('/download_report/<ftype>,<char>')
 def download_report(ftype, char):
     conn = get_db_connection()
-    query = """SELECT Persons.LastName, Persons.FirstName, Persons.MiddleName
-                               FROM Persons
+    query = """SELECT Persons.LastName, Persons.FirstName, Persons.MiddleName, Reports.Name, PersonRegistry.PersonalCase, Reports.Year, Files.FilePath, PersonRegistry.Page, Persons.Note
+                               FROM Persons INNER JOIN PersonRegistry ON Persons.ID=PersonRegistry.PersonID 
+                                            INNER JOIN Reports ON PersonRegistry.ReportID=Reports.ID 
+                                            INNER JOIN Files ON PersonRegistry.FileID=Files.ID 
                                WHERE sql_lower(Persons.LastName) LIKE ? 
                                ORDER BY Persons.LastName"""
     result = conn.execute(query, (char + '%', )).fetchall()
@@ -126,6 +128,7 @@ def download_report(ftype, char):
     
     proxy = StringIO()
     writer = csv.writer(proxy)
+    writer.writerow(['Фамилия', 'Имя', 'Отчество', 'Опись', 'Дело', 'Год', 'Файл описи', 'Страница', 'Примечание'])
     writer.writerows(result)
     mem = BytesIO()
     mem.write(proxy.getvalue().encode())
@@ -210,14 +213,8 @@ def upload_batch():
 
 @app.route('/display_by_char/<char>')
 def display_by_char(char):
-    # query = """SELECT Persons.ID, Persons.LastName, Persons.FirstName, Persons.MiddleName
-    #                            FROM Persons
-    #                            WHERE sql_lower(Persons.LastName) LIKE ?
-    #                            ORDER BY Persons.LastName """
-    query = """SELECT Persons.ID, Persons.LastName, Persons.FirstName, Persons.MiddleName, Persons.PersonalCaseDir, Reports.Name, Reports.Year, PersonRegistry.Page, Files.ID
+    query = """SELECT Persons.ID, Persons.LastName, Persons.FirstName, Persons.MiddleName, PersonRegistry.PersonalCase
                                FROM Persons INNER JOIN PersonRegistry ON Persons.ID=PersonRegistry.PersonID 
-                                            INNER JOIN Reports on PersonRegistry.ReportID=Reports.ID 
-                                            INNER JOIN Files on PersonRegistry.FileID=Files.ID
                                WHERE sql_lower(Persons.LastName) LIKE ? 
                                GROUP BY Persons.ID
                                ORDER BY Persons.LastName """

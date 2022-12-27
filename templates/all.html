@@ -45,13 +45,13 @@
                                  <a href='{{ url_for("download_report", ftype = "txt", char = arg[0]) }}'> txt </a>
                                   
     </h2>
-    
+    <div class="names-in-3columns">
     {% for row in rows %}
-        <a id="doc-ref" href='{{ url_for("search_ID", ident = row[0])}}' target="_blank">{{row[1]}} {{row[2]}} {{row[3]}}</a>
+        <a id="doc-ref" href='{{ url_for("search_ID", ident = row[0])}}' target="_blank">{{row[1]}} {{row[2]}} {{row[3]}} (личное дело {{row[4]}})</a>
         <br>
     {% endfor %}
+    </div>
 
-    
 {% endblock %}
 
 
