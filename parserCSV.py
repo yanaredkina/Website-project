@@ -4,7 +4,7 @@ from insert_batch import insert_batch, DBobj
 import re
 
 def isname(str):
-    return re.fullmatch('[a-zA-ZА-Яа-яёй-]+', str)
+    return re.fullmatch('[a-zA-ZА-Яа-яёй\(\)\s\-]+', str)
 
 def parseCSV(csvFileStream,  uploadfolder, mode):
     csvData = pd.read_csv(csvFileStream, sep=';')
@@ -47,10 +47,11 @@ def parseCSV(csvFileStream,  uploadfolder, mode):
 
     batch = []
     protocol = "----- Verification with data format in file: \n\n"
-    errors = 0;
     
     csvData.fillna("", inplace=True)
     for i, row in csvData.iterrows():
+        
+        errors = 0;
         
         if not row['Фамилия'] or (not isname(row['Фамилия'].strip())):
             protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + " ERROR: lastname must have alphabet characters only \n"

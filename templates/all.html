@@ -47,7 +47,7 @@
     </h2>
     <div class="names-in-3columns">
     {% for row in rows %}
-        <a id="doc-ref" href='{{ url_for("search_ID", ident = row[0])}}' target="_blank">{{row[1]}} {{row[2]}} {{row[3]}} (личное дело {{row[4]}})</a>
+        <a id="doc-ref" href='{{ url_for("search_ID", ident = row[0])}}' target="_blank">{{row[1]}} {{row[2]}} {{row[3]}} (Оп. {{row[4]}} Г. {{row[5]}} Д. {{row[6]}})</a>
         <br>
     {% endfor %}
     </div>

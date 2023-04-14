@@ -33,7 +33,7 @@ def search_form():
 
 @app.route('/search', methods=['POST'])
 def search():
-    query = """SELECT Persons.LastName, Persons.FirstName, Persons.MiddleName, Persons.PersonalCaseDir, Reports.Name, Reports.Year, PersonRegistry.Page, Files.ID, Files.Type
+    query = """SELECT Persons.LastName, Persons.FirstName, Persons.MiddleName, Persons.PersonalCaseDir, Reports.Name, Reports.Year, PersonRegistry.Page, PersonRegistry.PersonalCase, Files.ID, Files.Type
                                FROM Persons INNER JOIN PersonRegistry ON Persons.ID=PersonRegistry.PersonID 
                                             INNER JOIN Reports on PersonRegistry.ReportID=Reports.ID 
                                             INNER JOIN Files on PersonRegistry.FileID=Files.ID 
@@ -81,8 +81,9 @@ def content(ident):
 
 @app.route('/all')
 def all():
-    query = """SELECT Persons.ID, Persons.LastName, Persons.FirstName, Persons.MiddleName, PersonRegistry.PersonalCase
+    query = """SELECT Persons.ID, Persons.LastName, Persons.FirstName, Persons.MiddleName, Reports.Name, Reports.Year, PersonRegistry.PersonalCase
                                FROM Persons INNER JOIN PersonRegistry ON Persons.ID=PersonRegistry.PersonID
+                                            INNER JOIN Reports ON PersonRegistry.ReportID=Reports.ID
                                GROUP BY Persons.ID
                                ORDER BY Persons.LastName """
     conn = get_db_connection()
@@ -98,7 +99,7 @@ def all():
 
 @app.route('/search_ID/<int:ident>')
 def search_ID(ident):
-    query = """SELECT Persons.LastName, Persons.FirstName, Persons.MiddleName, Persons.PersonalCaseDir, Reports.Name, Reports.Year, PersonRegistry.Page, Files.ID, Files.Type
+    query = """SELECT Persons.LastName, Persons.FirstName, Persons.MiddleName, Persons.PersonalCaseDir, Reports.Name, Reports.Year, PersonRegistry.Page, PersonRegistry.PersonalCase, Files.ID, Files.Type
                                FROM Persons INNER JOIN PersonRegistry ON Persons.ID=PersonRegistry.PersonID 
                                             INNER JOIN Reports ON PersonRegistry.ReportID=Reports.ID 
                                             INNER JOIN Files ON PersonRegistry.FileID=Files.ID 
@@ -213,8 +214,9 @@ def upload_batch():
 
 @app.route('/display_by_char/<char>')
 def display_by_char(char):
-    query = """SELECT Persons.ID, Persons.LastName, Persons.FirstName, Persons.MiddleName, PersonRegistry.PersonalCase
+    query = """SELECT Persons.ID, Persons.LastName, Persons.FirstName, Persons.MiddleName, Reports.Name, Reports.Year, PersonRegistry.PersonalCase
                                FROM Persons INNER JOIN PersonRegistry ON Persons.ID=PersonRegistry.PersonID 
+                                            INNER JOIN Reports ON PersonRegistry.ReportID=Reports.ID 
                                WHERE sql_lower(Persons.LastName) LIKE ? 
                                GROUP BY Persons.ID
                                ORDER BY Persons.LastName """
