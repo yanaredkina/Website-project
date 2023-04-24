@@ -17,6 +17,10 @@
         
         <li><label for="exactMatch">Искать точное совпадение</label></li>
         <li><input type="checkbox" name="exactMatch"/></li>
+        
+        <li><label for="year">Год описи</label></li>
+        <li><input type="text" name="year" value="{{ request.form.year}}" /></li>
+            
         <li><input id="input" type="submit" value="Найти"></li>
         </ul>
     </form>

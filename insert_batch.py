@@ -1,4 +1,5 @@
 import sqlite3
+import os.path
 from flask import Flask, flash
 
 class DBobj:
@@ -20,7 +21,7 @@ class DBobj:
 
 
 def insert_batch(batch, protocol, mode):
-    connection = sqlite3.connect('database.db')
+    connection = sqlite3.connect(os.path.abspath('database.db'))
     cursor = connection.cursor()
     
     protocol += "----- ERRORS when uploading to the database: \n\n"

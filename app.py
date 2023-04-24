@@ -12,14 +12,15 @@ def sql_lower(value):
     return value.lower()
 
 def get_db_connection():
-    conn = sqlite3.connect('database.db')
+    dbname = os.path.abspath('database.db')
+    conn = sqlite3.connect(dbname)
     conn.row_factory = sqlite3.Row
     conn.create_function("sql_lower", 1, sql_lower)
     return conn
     
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'my secret key'
-app.config['UPLOAD_FOLDER'] = 'documents/'
+app.config['UPLOAD_FOLDER'] = os.path.abspath('documents')
     
 @app.route('/')
 def index():
@@ -58,6 +59,11 @@ def search():
         middlename = request.form['middlename']
         query += 'AND sql_lower(Persons.MiddleName) ' + q
         arguments.append(s(middlename))
+        
+    if 'year' in request.form and len(request.form['year']) > 0:
+        print("here")
+        year = request.form['year']
+        query += 'AND Reports.Year = ' + year
     
     conn = get_db_connection()
     registry = conn.execute(query, arguments).fetchall()
@@ -93,7 +99,7 @@ def all():
         flash('Ничего не найдено!')
         return redirect(url_for('index'))
 
-    return render_template("all.html", rows = result, arg =['%'])
+    return render_template("all.html", rows = result, arg =['%', '*'])
   
     
 
@@ -115,15 +121,21 @@ def search_ID(ident):
     return render_template("search_results.html", rows = result, arg=arguments)
     
     
-@app.route('/download_report/<ftype>,<char>')
-def download_report(ftype, char):
+@app.route('/download_report/<ftype>,<char>,<year>')
+def download_report(ftype, char, year):
     conn = get_db_connection()
     query = """SELECT Persons.LastName, Persons.FirstName, Persons.MiddleName, Reports.Name, PersonRegistry.PersonalCase, Reports.Year, Files.FilePath, PersonRegistry.Page, Persons.Note
                                FROM Persons INNER JOIN PersonRegistry ON Persons.ID=PersonRegistry.PersonID 
                                             INNER JOIN Reports ON PersonRegistry.ReportID=Reports.ID 
                                             INNER JOIN Files ON PersonRegistry.FileID=Files.ID 
                                WHERE sql_lower(Persons.LastName) LIKE ? 
-                               ORDER BY Persons.LastName"""
+                               """
+                               #ORDER BY Persons.LastName"""
+    
+    if (year != '*'):
+         query += " AND Reports.Year = " + year
+    
+    query += " ORDER BY Persons.LastName"
     result = conn.execute(query, (char + '%', )).fetchall()
     conn.close()
     
@@ -212,18 +224,48 @@ def upload_batch():
     return render_template('upload_batch.html')
     
 
-@app.route('/display_by_char/<char>')
-def display_by_char(char):
+@app.route('/display_by_char/<char>,<year>')
+def display_by_char(char, year):
     query = """SELECT Persons.ID, Persons.LastName, Persons.FirstName, Persons.MiddleName, Reports.Name, Reports.Year, PersonRegistry.PersonalCase
                                FROM Persons INNER JOIN PersonRegistry ON Persons.ID=PersonRegistry.PersonID 
                                             INNER JOIN Reports ON PersonRegistry.ReportID=Reports.ID 
                                WHERE sql_lower(Persons.LastName) LIKE ? 
-                               GROUP BY Persons.ID
-                               ORDER BY Persons.LastName """
+                               """
+                               #GROUP BY Persons.ID
+                               #ORDER BY Persons.LastName """
+    if (year != '*'):
+         query += " AND Reports.Year = " + year
+         
+    query += " GROUP BY Persons.ID ORDER BY Persons.LastName"
     
     conn = get_db_connection()
     result = conn.execute(query, (char + '%', )).fetchall()
     conn.close()
     if not result:
         flash('Ничего не найдено!')
-    return render_template("all.html", rows = result, arg = [char])
+    return render_template("all.html", rows = result, arg = [char, year])
+    
+    
+
+@app.route('/display_by_year/<char>', methods=['GET', 'POST'])
+def display_by_year(char):
+    year = request.form.get('select')
+    query = """SELECT Persons.ID, Persons.LastName, Persons.FirstName, Persons.MiddleName, Reports.Name, Reports.Year, PersonRegistry.PersonalCase
+                               FROM Persons INNER JOIN PersonRegistry ON Persons.ID=PersonRegistry.PersonID 
+                                            INNER JOIN Reports ON PersonRegistry.ReportID=Reports.ID 
+                               WHERE sql_lower(Persons.LastName) LIKE ? 
+                               """
+                               #GROUP BY Persons.ID
+                               #ORDER BY Persons.LastName """
+    if (year != '*'):
+         query += " AND Reports.Year = " + year
+    
+    query += " GROUP BY Persons.ID ORDER BY Persons.LastName"
+    
+    conn = get_db_connection()
+    result = conn.execute(query, (char + '%', )).fetchall()
+    conn.close()
+        
+    if not result:
+        flash('Ничего не найдено!')
+    return render_template("all.html", rows = result, arg = [char, year])

@@ -84,7 +84,7 @@ def parseCSV(csvFileStream,  uploadfolder, mode):
             protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + " ERROR: Year must be a number \n"
             errors += 1
          
-        filepath = uploadfolder + row['Файл_описи']
+        filepath = os.path.join(uploadfolder, row['Файл_описи'])
         if not (os.path.isfile(filepath)):
             protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + " ERROR: File does not exist \n"
             errors += 1
