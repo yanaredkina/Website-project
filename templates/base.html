@@ -9,13 +9,13 @@
     </head>
     
     <body>
-        <h1>Электронный архив описей</h1>
+        <h1>Информационная система по описям архива Московского университета</h1>
         <div class="menu">
         <a href="{{ url_for('index')}}">Главная</a>
         <a href="{{url_for('search_form')}}">Поиск</a>
         <a href="{{ url_for('all')}}">Все записи</a>
-        <a href="{{ url_for('upload')}}">Добавить запись</a>
         <a href="{{ url_for('upload_batch')}}">Добавить опись</a>
+        <a href="{{ url_for('delete_form')}}">Очистить опись</a>
         </div>
         
         {% block content %} {% endblock %}

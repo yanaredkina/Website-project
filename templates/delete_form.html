@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %} <title>Очистка описи</title> {% endblock %}
+
+{% block content %}
+    <form class="form" action="{{ url_for('delete_form')}}" method="POST">        
+        <h3>Очистка данных описи из БД</h3>
+        <ul>
+        <li><label for="select_report">Выберите опись:</label></li>
+        <li><select name="select_report">
+            <option selected disabled hidden>опись</option>
+            {% for report in rows %}
+                <option value="{{report[0]}}">N {{report[1]}} от {{report[2]}} г.</option>
+            {% endfor%}
+         </select></li>
+        <li><input id="input" type="submit" value='Очистить'>
+        </ul>
+    </form>
+
+{% endblock %}

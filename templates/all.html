@@ -7,49 +7,50 @@
     <div class="get_all_list">
     <ul class="name_list">
         <li class="все"><a href='{{ url_for("all")}}'>все</a></li>
-    	<li class="a"><a href='{{ url_for("display_by_char", char = "а", year = arg[1])}}'>а</a></li>
-    	<li class="b"><a href='{{ url_for("display_by_char", char = "б", year = arg[1])}}'>б</a></li>
-    	<li class="v"><a href='{{ url_for("display_by_char", char = "в", year = arg[1])}}'>в</a></li>
-    	<li class="g"><a href='{{ url_for("display_by_char", char = "г", year = arg[1])}}'>г</a></li>
-    	<li class="d"><a href='{{ url_for("display_by_char", char = "д", year = arg[1])}}'>д</a></li>
-    	<li class="e"><a href='{{ url_for("display_by_char", char = "е", year = arg[1])}}'>е</a></li>
-        <li class="yo"><a href='{{ url_for("display_by_char", char = "ё", year = arg[1])}}'>ё</a></li>
-    	<li class="zh"><a href='{{ url_for("display_by_char", char = "ж", year = arg[1])}}'>ж</a></li>
-    	<li class="z"><a href='{{ url_for("display_by_char", char = "з", year = arg[1])}}'>з</a></li>
-    	<li class="i"><a href='{{ url_for("display_by_char", char = "и", year = arg[1])}}'>и</a></li>
-        <li class="ii"><a href='{{ url_for("display_by_char", char = "й", year = arg[1])}}'>й</a></li>
-    	<li class="k"><a href='{{ url_for("display_by_char", char = "к", year = arg[1])}}'>к</a></li>
-    	<li class="l"><a href='{{ url_for("display_by_char", char = "л", year = arg[1])}}'>л</a></li>
-    	<li class="m"><a href='{{ url_for("display_by_char", char = "м", year = arg[1])}}'>м</a></li>
-    	<li class="n"><a href='{{ url_for("display_by_char", char = "н", year = arg[1])}}'>н</a></li>
-    	<li class="o"><a href='{{ url_for("display_by_char", char = "о", year = arg[1])}}'>о</a></li>
-    	<li class="p"><a href='{{ url_for("display_by_char", char = "п", year = arg[1])}}'>п</a></li>
-    	<li class="r"><a href='{{ url_for("display_by_char", char = "р", year = arg[1])}}'>р</a></li>
-    	<li class="s"><a href='{{ url_for("display_by_char", char = "с", year = arg[1])}}'>с</a></li>
-    	<li class="t"><a href='{{ url_for("display_by_char", char = "т", year = arg[1])}}'>т</a></li>
-    	<li class="u"><a href='{{ url_for("display_by_char", char = "у", year = arg[1])}}'>у</a></li>
-    	<li class="f"><a href='{{ url_for("display_by_char", char = "ф", year = arg[1])}}'>ф</a></li>
-    	<li class="h"><a href='{{ url_for("display_by_char", char = "х", year = arg[1])}}'>х</a></li>
-    	<li class="ze"><a href='{{ url_for("display_by_char", char = "ц", year = arg[1])}}'>ц</a></li>
-    	<li class="ch"><a href='{{ url_for("display_by_char", char = "ч", year = arg[1])}}'>ч</a></li>
-    	<li class="sh"><a href='{{ url_for("display_by_char", char = "ш", year = arg[1])}}'>ш</a></li>
-        <li class="tsh"><a href='{{ url_for("display_by_char", char = "щ", year = arg[1])}}'>щ</a></li>
-    	<li class="ai"><a href='{{ url_for("display_by_char", char = "ы", year = arg[1])}}'>ы</a></li>
-    	<li class="ae"><a href='{{ url_for("display_by_char", char = "э", year = arg[1])}}'>э</a></li>
-        <li class="yu"><a href='{{ url_for("display_by_char", char = "ю", year = arg[1])}}'>ю</a></li>
-        <li class="ya"><a href='{{ url_for("display_by_char", char = "я", year = arg[1])}}'>я</a></li>
+    	<li class="a"><a href='{{ url_for("filter_by_char", char = "а", year = arg[1])}}'>а</a></li>
+    	<li class="b"><a href='{{ url_for("filter_by_char", char = "б", year = arg[1])}}'>б</a></li>
+    	<li class="v"><a href='{{ url_for("filter_by_char", char = "в", year = arg[1])}}'>в</a></li>
+    	<li class="g"><a href='{{ url_for("filter_by_char", char = "г", year = arg[1])}}'>г</a></li>
+    	<li class="d"><a href='{{ url_for("filter_by_char", char = "д", year = arg[1])}}'>д</a></li>
+    	<li class="e"><a href='{{ url_for("filter_by_char", char = "е", year = arg[1])}}'>е</a></li>
+        <li class="yo"><a href='{{ url_for("filter_by_char", char = "ё", year = arg[1])}}'>ё</a></li>
+    	<li class="zh"><a href='{{ url_for("filter_by_char", char = "ж", year = arg[1])}}'>ж</a></li>
+    	<li class="z"><a href='{{ url_for("filter_by_char", char = "з", year = arg[1])}}'>з</a></li>
+    	<li class="i"><a href='{{ url_for("filter_by_char", char = "и", year = arg[1])}}'>и</a></li>
+        <li class="ii"><a href='{{ url_for("filter_by_char", char = "й", year = arg[1])}}'>й</a></li>
+    	<li class="k"><a href='{{ url_for("filter_by_char", char = "к", year = arg[1])}}'>к</a></li>
+    	<li class="l"><a href='{{ url_for("filter_by_char", char = "л", year = arg[1])}}'>л</a></li>
+    	<li class="m"><a href='{{ url_for("filter_by_char", char = "м", year = arg[1])}}'>м</a></li>
+    	<li class="n"><a href='{{ url_for("filter_by_char", char = "н", year = arg[1])}}'>н</a></li>
+    	<li class="o"><a href='{{ url_for("filter_by_char", char = "о", year = arg[1])}}'>о</a></li>
+    	<li class="p"><a href='{{ url_for("filter_by_char", char = "п", year = arg[1])}}'>п</a></li>
+    	<li class="r"><a href='{{ url_for("filter_by_char", char = "р", year = arg[1])}}'>р</a></li>
+    	<li class="s"><a href='{{ url_for("filter_by_char", char = "с", year = arg[1])}}'>с</a></li>
+    	<li class="t"><a href='{{ url_for("filter_by_char", char = "т", year = arg[1])}}'>т</a></li>
+    	<li class="u"><a href='{{ url_for("filter_by_char", char = "у", year = arg[1])}}'>у</a></li>
+    	<li class="f"><a href='{{ url_for("filter_by_char", char = "ф", year = arg[1])}}'>ф</a></li>
+    	<li class="h"><a href='{{ url_for("filter_by_char", char = "х", year = arg[1])}}'>х</a></li>
+    	<li class="ze"><a href='{{ url_for("filter_by_char", char = "ц", year = arg[1])}}'>ц</a></li>
+    	<li class="ch"><a href='{{ url_for("filter_by_char", char = "ч", year = arg[1])}}'>ч</a></li>
+    	<li class="sh"><a href='{{ url_for("filter_by_char", char = "ш", year = arg[1])}}'>ш</a></li>
+        <li class="tsh"><a href='{{ url_for("filter_by_char", char = "щ", year = arg[1])}}'>щ</a></li>
+    	<li class="ai"><a href='{{ url_for("filter_by_char", char = "ы", year = arg[1])}}'>ы</a></li>
+    	<li class="ae"><a href='{{ url_for("filter_by_char", char = "э", year = arg[1])}}'>э</a></li>
+        <li class="yu"><a href='{{ url_for("filter_by_char", char = "ю", year = arg[1])}}'>ю</a></li>
+        <li class="ya"><a href='{{ url_for("filter_by_char", char = "я", year = arg[1])}}'>я</a></li>
     </ul>
 	</div>
     
-    
-    <form action="{{ url_for('display_by_year', char = arg[0]) }}" method="POST">
+    <form action="{{ url_for('filter_by_year', char = arg[0])}}" method="POST">
     <h2>Фильтр по году
-        <select name="select" size="1">
+        <select name="select_year">
+            <option selected disabled hidden>год</option>
             <option value="*">все</option>
-            <option value="1880">1880</option>
-            <option value="1874">1874</option>
+            {% for year in years %}
+                <option value="{{year[0]}}">{{year[0]}}</option>
+            {% endfor%}
          </select>
-     <button type="submit">Применить</button>
+         <button type="submit">Применить</button>
      </h2>
     </form>
 
@@ -64,6 +65,7 @@
         <br>
     {% endfor %}
     </div>
+    <p id="text"><small>Всего записей: {{total}}</p>
 
 {% endblock %}
 

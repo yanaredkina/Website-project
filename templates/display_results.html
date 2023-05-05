@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %} <title>Результаты</title> {% endblock %}
+
+{% block content %}
+    <h2>Запрос: 
+        {% for indx in arg %}
+            {{indx}}
+        {% endfor %}
+    </h2>
+    {% for row in rows %}
+    <div class="doc-display">
+        <p>{{row[1]}} {{row[2]}} {{row[3]}}: Опись № {{row[5]}} Год {{row[6]}} Страница {{row[7]}} Дело {{row[8]}}<p>
+            {% if row[4] %}
+                <a id="doc-ref" href='{{ url_for("display_directory", directory = row[4])}}' target="_blank">Архив личного дела<br></a>
+            {% endif %}
+            {% if row[10] == "pdf" %}
+            <object class="images" id="pdf" data='{{ url_for("content", ident = row[9])}}#page={{row[7]}}'></object>
+            {% else %}
+            <object class="images" id="jpg" data='{{ url_for("content", ident = row[9])}}' type ="image/jpeg"></object>
+            {% endif%}
+        <br>
+    </div>
+    {% endfor %}
+
+{% endblock %}

@@ -3,10 +3,11 @@ from flask import Flask, render_template, request, url_for, flash, redirect, sen
 from insert_batch import insert_batch, DBobj
 from csv_check import csv_check
 from parserCSV import parseCSV
+from delete_report import delete_report
 import csv
 import os.path
 from io import StringIO, BytesIO
-  
+
       
 def sql_lower(value):
     return value.lower()
@@ -21,6 +22,9 @@ def get_db_connection():
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'my secret key'
 app.config['UPLOAD_FOLDER'] = os.path.abspath('documents')
+app.config['PESONALCASES_FOLDER'] = os.path.abspath('personalcases')
+app.config['ENV'] = 'development'
+app.config['DEBUG'] = True
     
 @app.route('/')
 def index():
@@ -29,15 +33,14 @@ def index():
     
 @app.route('/search_form')
 def search_form():
-    return render_template('search.html')
+    return render_template('search_form.html')
     
 
 @app.route('/search', methods=['POST'])
 def search():
-    query = """SELECT Persons.LastName, Persons.FirstName, Persons.MiddleName, Persons.PersonalCaseDir, Reports.Name, Reports.Year, PersonRegistry.Page, PersonRegistry.PersonalCase, Files.ID, Files.Type
+    query = """SELECT Persons.ID, Persons.LastName, Persons.FirstName, Persons.MiddleName, Reports.Name, Reports.Year, PersonRegistry.PersonalCase
                                FROM Persons INNER JOIN PersonRegistry ON Persons.ID=PersonRegistry.PersonID 
-                                            INNER JOIN Reports on PersonRegistry.ReportID=Reports.ID 
-                                            INNER JOIN Files on PersonRegistry.FileID=Files.ID 
+                                            INNER JOIN Reports on PersonRegistry.ReportID=Reports.ID
                                WHERE sql_lower(Persons.LastName) """
     
     if request.form.get('exactMatch'):
@@ -66,12 +69,12 @@ def search():
         query += 'AND Reports.Year = ' + year
     
     conn = get_db_connection()
-    registry = conn.execute(query, arguments).fetchall()
+    result = conn.execute(query, arguments).fetchall()
     conn.close()
-    if not registry:
+    if not result:
         flash('Ничего не найдено!')
         return redirect(url_for('search_form'))
-    return render_template("search_results.html", rows = registry, arg=arguments)
+    return render_template("search_results.html", rows = result, arg=arguments, total = len(result))
 
     
 @app.route('/content/<int:ident>')
@@ -92,20 +95,21 @@ def all():
                                             INNER JOIN Reports ON PersonRegistry.ReportID=Reports.ID
                                GROUP BY Persons.ID
                                ORDER BY Persons.LastName """
+    
     conn = get_db_connection()
     result = conn.execute(query).fetchall()
+    years = conn.execute("""SELECT Reports.Year FROM Reports""").fetchall()
     conn.close()
     if not result:
         flash('Ничего не найдено!')
         return redirect(url_for('index'))
-
-    return render_template("all.html", rows = result, arg =['%', '*'])
+    return render_template("all.html", rows = result, arg =['%', '*'], years = years, total = len(result))
   
     
 
 @app.route('/search_ID/<int:ident>')
 def search_ID(ident):
-    query = """SELECT Persons.LastName, Persons.FirstName, Persons.MiddleName, Persons.PersonalCaseDir, Reports.Name, Reports.Year, PersonRegistry.Page, PersonRegistry.PersonalCase, Files.ID, Files.Type
+    query = """SELECT Persons.ID, Persons.LastName, Persons.FirstName, Persons.MiddleName, Persons.PersonalCaseDir, Reports.Name, Reports.Year, PersonRegistry.Page, PersonRegistry.PersonalCase, Files.ID, Files.Type
                                FROM Persons INNER JOIN PersonRegistry ON Persons.ID=PersonRegistry.PersonID 
                                             INNER JOIN Reports ON PersonRegistry.ReportID=Reports.ID 
                                             INNER JOIN Files ON PersonRegistry.FileID=Files.ID 
@@ -117,8 +121,8 @@ def search_ID(ident):
     if not result:
         flash('Ничего не найдено!')
         return redirect(url_for('search'))
-    arguments = [result[0][0], result[0][1], result[0][2]]
-    return render_template("search_results.html", rows = result, arg=arguments)
+    arguments = [result[0][1], result[0][2], result[0][3]]
+    return render_template("display_results.html", rows = result, arg=arguments)
     
     
 @app.route('/download_report/<ftype>,<char>,<year>')
@@ -130,7 +134,6 @@ def download_report(ftype, char, year):
                                             INNER JOIN Files ON PersonRegistry.FileID=Files.ID 
                                WHERE sql_lower(Persons.LastName) LIKE ? 
                                """
-                               #ORDER BY Persons.LastName"""
     
     if (year != '*'):
          query += " AND Reports.Year = " + year
@@ -155,46 +158,46 @@ def download_report(ftype, char, year):
         mimetype = "text/plain"
         filename = "report.txt"
         
-    return send_file(mem, as_attachment=True, attachment_filename=filename, mimetype=mimetype)
+    return send_file(mem, as_attachment=True, download_name=filename, mimetype=mimetype)
 
-@app.route('/upload', methods=['GET', 'POST'])
-def upload():
-    if request.method == 'POST':
-        lastname = request.form['lastname']
-        firstname = request.form['firstname']
-        middlename = request.form['middlename']
-        personalcasedir = request.form['personalcasedir']
-        note = request.form['note']
-        report = request.form['report']
-        year = request.form['year']
-        personalcase = request.form['personalcase']
-        page = request.form['page']
-        fileobj = request.files['file']
-        
-        #add cheking personalcasedir
-        
-        if not fileobj:
-            flash('Нет выбранного файла')
-            return render_template('upload.html')
-            
-        filepath = app.config['UPLOAD_FOLDER'] + fileobj.filename
-        fileobj.save(filepath)
-        filetype = fileobj.filename.split('.')[-1]
-            
-        obj = DBobj(lastname, firstname, middlename, personalcasedir, note, report, personalcase, year, filepath, page, filetype)
-        batch = [obj]
-        
-        try: 
-            insert_batch(batch)
-            flash("Запись успешно добавлена")
-            return redirect(url_for('search_form'))
-        
-        except Exception as error:
-            flash("Ошибка выполнения запроса: ")
-            flash(' '.join(error.args))
-            return render_template('upload.html')
-
-    return render_template('upload.html')
+# @app.route('/upload', methods=['GET', 'POST'])
+# def upload():
+#     if request.method == 'POST':
+#         lastname = request.form['lastname']
+#         firstname = request.form['firstname']
+#         middlename = request.form['middlename']
+#         personalcasedir = request.form['personalcasedir']
+#         note = request.form['note']
+#         report = request.form['report']
+#         year = request.form['year']
+#         personalcase = request.form['personalcase']
+#         page = request.form['page']
+#         fileobj = request.files['file']
+#
+#         #add cheking personalcasedir
+#
+#         if not fileobj:
+#             flash('Нет выбранного файла')
+#             return render_template('upload.html')
+#
+#         filepath = app.config['UPLOAD_FOLDER'] + fileobj.filename
+#         fileobj.save(filepath)
+#         filetype = fileobj.filename.split('.')[-1]
+#
+#         obj = DBobj(lastname, firstname, middlename, personalcasedir, note, report, personalcase, year, filepath, page, filetype)
+#         batch = [obj]
+#
+#         try:
+#             insert_batch(batch)
+#             flash("Запись успешно добавлена")
+#             return redirect(url_for('search_form'))
+#
+#         except Exception as error:
+#             flash("Ошибка выполнения запроса: ")
+#             flash(' '.join(error.args))
+#             return render_template('upload.html')
+#
+#     return render_template('upload.html')
 
 
 @app.route('/upload_batch', methods=['GET', 'POST'])
@@ -224,15 +227,13 @@ def upload_batch():
     return render_template('upload_batch.html')
     
 
-@app.route('/display_by_char/<char>,<year>')
-def display_by_char(char, year):
+@app.route('/filter_by_char/<char>,<year>')
+def filter_by_char(char, year):
     query = """SELECT Persons.ID, Persons.LastName, Persons.FirstName, Persons.MiddleName, Reports.Name, Reports.Year, PersonRegistry.PersonalCase
                                FROM Persons INNER JOIN PersonRegistry ON Persons.ID=PersonRegistry.PersonID 
                                             INNER JOIN Reports ON PersonRegistry.ReportID=Reports.ID 
                                WHERE sql_lower(Persons.LastName) LIKE ? 
                                """
-                               #GROUP BY Persons.ID
-                               #ORDER BY Persons.LastName """
     if (year != '*'):
          query += " AND Reports.Year = " + year
          
@@ -240,23 +241,23 @@ def display_by_char(char, year):
     
     conn = get_db_connection()
     result = conn.execute(query, (char + '%', )).fetchall()
+    years = conn.execute("""SELECT Reports.Year FROM Reports""").fetchall()
     conn.close()
     if not result:
         flash('Ничего не найдено!')
-    return render_template("all.html", rows = result, arg = [char, year])
+    
+    return render_template("all.html", rows = result, arg = [char, year], years = years, total = len(result))
     
     
 
-@app.route('/display_by_year/<char>', methods=['GET', 'POST'])
-def display_by_year(char):
-    year = request.form.get('select')
+@app.route('/filter_by_year/<char>', methods=['POST'])
+def filter_by_year(char):
+    year = request.form.get('select_year')
     query = """SELECT Persons.ID, Persons.LastName, Persons.FirstName, Persons.MiddleName, Reports.Name, Reports.Year, PersonRegistry.PersonalCase
                                FROM Persons INNER JOIN PersonRegistry ON Persons.ID=PersonRegistry.PersonID 
                                             INNER JOIN Reports ON PersonRegistry.ReportID=Reports.ID 
                                WHERE sql_lower(Persons.LastName) LIKE ? 
                                """
-                               #GROUP BY Persons.ID
-                               #ORDER BY Persons.LastName """
     if (year != '*'):
          query += " AND Reports.Year = " + year
     
@@ -264,8 +265,55 @@ def display_by_year(char):
     
     conn = get_db_connection()
     result = conn.execute(query, (char + '%', )).fetchall()
+    years = conn.execute("""SELECT Reports.Year FROM Reports""").fetchall()
     conn.close()
         
     if not result:
         flash('Ничего не найдено!')
-    return render_template("all.html", rows = result, arg = [char, year])
+
+    return render_template("all.html", rows = result, arg = [char, year], years = years, total = len(result))
+    
+    
+@app.route('/guide')    
+def guide():
+    return render_template("guide.html")
+    
+    
+
+@app.route('/delete_form', methods=['GET', 'POST'])
+def delete_form():
+    if request.method == 'POST':
+        reportid = request.form.get('select_report')
+        protocol = delete_report(reportid)
+        return Response(protocol, mimetype="text/plain", headers={"Content-Disposition":"attachment; filename=deleteprotocol.txt"})
+    
+
+    query = """SELECT Reports.ID, Reports.Name, Reports.Year
+                               FROM Reports"""
+    conn = get_db_connection()
+    result = conn.execute(query).fetchall()
+    conn.close()
+    return render_template("delete_form.html", rows = result)
+    
+
+@app.route('/display_directory/<directory>')
+def display_directory(directory):
+    dirpath = os.path.join(app.config['PESONALCASES_FOLDER'], directory)
+    if not os.path.exists(dirpath):  
+        flash('Ничего не найдено!')
+        return render_template("index.html")
+
+    files = list(map(lambda x: (x, x.split('.')[-1]), os.listdir(dirpath)))
+    return render_template('display_directory.html', files=files, directory=directory)
+
+
+@app.route('/dircontent/<directory>,<filename>')
+def dircontent(directory, filename):
+    dirpath = os.path.join(app.config['PESONALCASES_FOLDER'], directory)
+    filepath = os.path.join(dirpath, filename)
+    return send_file(filepath)
+
+#update Persons set (PersonalCaseDir) = ('Vassiliev') WHERE ID = 3860;
+    
+if __name__ == "__main__":
+    app.run()

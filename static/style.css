@@ -27,10 +27,16 @@ h3 {
     font-weight: bold;
 }
 
+
+h4 {
+}
+
+
 p {
     text-align: center;
     font-size: 18px;
 }
+
 
 .menu {
     text-align: center;
@@ -134,7 +140,7 @@ form textarea {
 
 #pdf {
     width: 80%;
-    height: 850px;
+    height: 820px;
     padding: 5px;
 }
 
@@ -145,4 +151,10 @@ form textarea {
 
 .names-in-3columns {
     column-count: 3;
+}
+
+#text {
+    text-align: left;
+    font-size: 18px;
+    margin-left: 20px;
 }

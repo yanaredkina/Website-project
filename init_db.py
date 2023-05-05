@@ -1,4 +1,5 @@
 import sqlite3
+import os.path
 
 connection = sqlite3.connect(os.path.abspath('database.db'))
 connection.text_factory = str

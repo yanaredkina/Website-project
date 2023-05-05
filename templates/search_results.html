@@ -9,15 +9,10 @@
         {% endfor %}
     </h2>
     {% for row in rows %}
-    <div class="doc-display">
-        <p>{{row[0]}} {{row[1]}} {{row[2]}}: Опись № {{row[4]}} Год {{row[5]}} Страница {{row[6]}} Дело {{row[7]}}<p>
-            {% if row[9] == "pdf" %}
-            <object class="images" id="pdf" data='{{ url_for("content", ident = row[8])}}#page={{row[6]}}'></object>
-            {% else %}
-            <object class="images" id="jpg" data='{{ url_for("content", ident = row[8])}}' type ="image/jpeg"></object>
-            {% endif%}
-        <br>
+    <div>
+        <a id="doc-ref" href='{{ url_for("search_ID", ident = row[0])}}' target="_blank">{{row[1]}} {{row[2]}} {{row[3]}} (оп.{{row[4]}} г.{{row[5]}} д.{{row[6]}})</a>
     </div>
     {% endfor %}
+     <p id="text"><small>Всего записей: {{total}}</p>
 
 {% endblock %}
