@@ -7,7 +7,6 @@ from delete_report import delete_report
 import csv
 import os.path
 from io import StringIO, BytesIO
-
       
 def sql_lower(value):
     return value.lower()
@@ -82,10 +81,11 @@ def content(ident):
     conn = get_db_connection()
     result = conn.execute('SELECT FilePath, Type FROM Files WHERE ID = ?', (ident,)).fetchone()
     conn.close()
+    fullfilepath = os.path.join(app.config['UPLOAD_FOLDER'], result[0])
     if result[1] == 'jpg':
-        return send_file(result[0], mimetype='image/jpeg')
+        return send_file(fullfilepath, mimetype='image/jpeg')
     else: 
-        return send_file(result[0], mimetype='application/pdf')
+        return send_file(fullfilepath, mimetype='application/pdf')
 
 
 @app.route('/all')

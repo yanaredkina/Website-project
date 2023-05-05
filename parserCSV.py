@@ -99,7 +99,7 @@ def parseCSV(csvFileStream,  uploadfolder, mode):
         
         if (errors == 0):
             protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + "       PASSED verification \n"
-            obj = DBobj(row['Фамилия'].strip(), row['Имя'].strip(), row['Отчество'].strip(), "", row['Примечание'], row['Опись'], row['Дело'], row['Год'], filepath, row['Страница'], fileformat)
+            obj = DBobj(row['Фамилия'].strip(), row['Имя'].strip(), row['Отчество'].strip(), "", row['Примечание'], row['Опись'], row['Дело'], row['Год'], row['Файл_описи'], row['Страница'], fileformat)
             batch.append(obj)
         
  
