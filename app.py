@@ -125,7 +125,7 @@ def search_ID(ident):
     return render_template("display_results.html", rows = result, arg=arguments)
     
     
-@app.route('/download_report/<ftype>,<char>,<year>')
+@app.route('/download_report/<ftype>/<char>/<year>')
 def download_report(ftype, char, year):
     conn = get_db_connection()
     query = """SELECT Persons.LastName, Persons.FirstName, Persons.MiddleName, Reports.Name, PersonRegistry.PersonalCase, Reports.Year, Files.FilePath, PersonRegistry.Page, Persons.Note
@@ -227,7 +227,7 @@ def upload_batch():
     return render_template('upload_batch.html')
     
 
-@app.route('/filter_by_char/<char>,<year>')
+@app.route('/filter_by_char/<char>/<year>')
 def filter_by_char(char, year):
     query = """SELECT Persons.ID, Persons.LastName, Persons.FirstName, Persons.MiddleName, Reports.Name, Reports.Year, PersonRegistry.PersonalCase
                                FROM Persons INNER JOIN PersonRegistry ON Persons.ID=PersonRegistry.PersonID 
@@ -299,7 +299,7 @@ def delete_form():
 @app.route('/display_directory/<directory>')
 def display_directory(directory):
     dirpath = os.path.join(app.config['PESONALCASES_FOLDER'], directory)
-    if not os.path.exists(dirpath):  
+    if not os.path.exists(dirpath): 
         flash('Ничего не найдено!')
         return render_template("index.html")
 
@@ -307,13 +307,13 @@ def display_directory(directory):
     return render_template('display_directory.html', files=files, directory=directory)
 
 
-@app.route('/dircontent/<directory>,<filename>')
+@app.route('/dircontent/<directory>/<filename>')
 def dircontent(directory, filename):
     dirpath = os.path.join(app.config['PESONALCASES_FOLDER'], directory)
     filepath = os.path.join(dirpath, filename)
     return send_file(filepath)
 
-#update Persons set (PersonalCaseDir) = ('Vassiliev') WHERE ID = 3860;
+#update Persons set (PersonalCaseDir) = ('Vassiliev') WHERE ID = 5059;
     
 if __name__ == "__main__":
     app.run()
