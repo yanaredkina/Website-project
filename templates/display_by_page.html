@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %} <title>Записи</title> {% endblock %}
+    
+{% block content %}
+    
+    <br>
+    <div class="names-in-3columns">
+    {% for row in rows %}
+        <a id="doc-ref" href='{{ url_for("search_ID", ident = row[0])}}' target="_blank">{{row[1]}} {{row[2]}} {{row[3]}} (оп.{{row[4]}} г.{{row[5]}} д.{{row[6]}})</a>
+        <br>
+    {% endfor %}
+    </div>
+    <br>
+    {% if start and finish %}
+        <p>Ничего не найдено</p>
+    {% else %}
+        {% if not start %}
+            {% set prev = offset - 120%}
+            <a id="text" href='{{url_for("display_by_page", offset = prev)}}'><small>Предыдущая страница</a>
+        {% endif %}
+        {% if not finish %}
+            <a id="text" href='{{url_for("display_by_page", offset = offset)}}'><small>Следующая страница</a>
+        {% endif %}
+    {% endif %}
+{% endblock %}
+
+

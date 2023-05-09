@@ -7,6 +7,9 @@ from delete_report import delete_report
 import csv
 import os.path
 from io import StringIO, BytesIO
+#from pandoc.types import *
+#pip install comtypes
+#import comtypes.client 
       
 def sql_lower(value):
     return value.lower()
@@ -67,6 +70,7 @@ def search():
         year = request.form['year']
         query += 'AND Reports.Year = ' + year
     
+    query += " ORDER BY Persons.LastName, Persons.FirstName, Persons.MiddleName "
     conn = get_db_connection()
     result = conn.execute(query, arguments).fetchall()
     conn.close()
@@ -88,13 +92,13 @@ def content(ident):
         return send_file(fullfilepath, mimetype='application/pdf')
 
 
-@app.route('/all')
+@app.route('/all/')
 def all():
     query = """SELECT Persons.ID, Persons.LastName, Persons.FirstName, Persons.MiddleName, Reports.Name, Reports.Year, PersonRegistry.PersonalCase
                                FROM Persons INNER JOIN PersonRegistry ON Persons.ID=PersonRegistry.PersonID
                                             INNER JOIN Reports ON PersonRegistry.ReportID=Reports.ID
-                               GROUP BY Persons.ID
-                               ORDER BY Persons.LastName """
+                               ORDER BY Persons.LastName, Persons.FirstName, Persons.MiddleName 
+                               """
     
     conn = get_db_connection()
     result = conn.execute(query).fetchall()
@@ -113,7 +117,8 @@ def search_ID(ident):
                                FROM Persons INNER JOIN PersonRegistry ON Persons.ID=PersonRegistry.PersonID 
                                             INNER JOIN Reports ON PersonRegistry.ReportID=Reports.ID 
                                             INNER JOIN Files ON PersonRegistry.FileID=Files.ID 
-                               WHERE Persons.ID = ? """          
+                               WHERE Persons.ID = ? 
+                               ORDER BY Persons.LastName, Persons.FirstName, Persons.MiddleName """          
                                
     conn = get_db_connection()
     result = conn.execute(query, (ident,)).fetchall()
@@ -138,7 +143,7 @@ def download_report(ftype, char, year):
     if (year != '*'):
          query += " AND Reports.Year = " + year
     
-    query += " ORDER BY Persons.LastName"
+    query += " ORDER BY Persons.LastName, Persons.FirstName, Persons.MiddleName "
     result = conn.execute(query, (char + '%', )).fetchall()
     conn.close()
     
@@ -217,10 +222,8 @@ def upload_batch():
         stream = StringIO(bytes)
         
         if (mode == 'test'):
-            #protocol = csv_check(stream, app.config['UPLOAD_FOLDER'], 'test')
             protocol = parseCSV(stream, app.config['UPLOAD_FOLDER'], 'test')
         else:
-            #protocol = csv_check(stream, app.config['UPLOAD_FOLDER'], 'prod')
             protocol = parseCSV(stream, app.config['UPLOAD_FOLDER'], 'prod')
         return Response(protocol, mimetype="text/plain", headers={"Content-Disposition":"attachment; filename=uploadprotocol.txt"})
         
@@ -237,7 +240,7 @@ def filter_by_char(char, year):
     if (year != '*'):
          query += " AND Reports.Year = " + year
          
-    query += " GROUP BY Persons.ID ORDER BY Persons.LastName"
+    query += " ORDER BY Persons.LastName, Persons.FirstName, Persons.MiddleName"
     
     conn = get_db_connection()
     result = conn.execute(query, (char + '%', )).fetchall()
@@ -261,7 +264,7 @@ def filter_by_year(char):
     if (year != '*'):
          query += " AND Reports.Year = " + year
     
-    query += " GROUP BY Persons.ID ORDER BY Persons.LastName"
+    query += " ORDER BY Persons.LastName, Persons.FirstName, Persons.MiddleName"
     
     conn = get_db_connection()
     result = conn.execute(query, (char + '%', )).fetchall()
@@ -314,6 +317,31 @@ def dircontent(directory, filename):
     return send_file(filepath)
 
 #update Persons set (PersonalCaseDir) = ('Vassiliev') WHERE ID = 5059;
+
+@app.route('/display_by_page/<offset>')
+def display_by_page(offset):
+    if (offset == '0'):
+        startflag = True
+    else:
+        startflag = False
+    
+    query = """SELECT Persons.ID, Persons.LastName, Persons.FirstName, Persons.MiddleName, Reports.Name, Reports.Year, PersonRegistry.PersonalCase
+                               FROM Persons INNER JOIN PersonRegistry ON Persons.ID=PersonRegistry.PersonID
+                                            INNER JOIN Reports ON PersonRegistry.ReportID=Reports.ID
+                               ORDER BY Persons.LastName, Persons.FirstName, Persons.MiddleName 
+                               LIMIT ?, 60 """
+    
+    conn = get_db_connection()
+    result = conn.execute(query, (offset, )).fetchall()
+    offset = int(offset) + len(result)
+    conn.close()
+    
+    if not result:
+        finishflag = True
+    else:
+        finishflag = False
+    return render_template("display_by_page.html", rows = result, offset = offset, start = startflag, finish = finishflag)  
+
     
 if __name__ == "__main__":
     app.run()

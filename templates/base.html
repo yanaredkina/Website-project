@@ -16,6 +16,7 @@
         <a href="{{ url_for('all')}}">Все записи</a>
         <a href="{{ url_for('upload_batch')}}">Добавить опись</a>
         <a href="{{ url_for('delete_form')}}">Очистить опись</a>
+        <a href="{{ url_for('display_by_page', offset = 0)}}">По страницам</a>
         </div>
         
         {% block content %} {% endblock %}
