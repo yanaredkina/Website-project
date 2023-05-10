@@ -306,15 +306,15 @@ def display_directory(directory):
         flash('Ничего не найдено!')
         return render_template("index.html")
 
-    files = list(map(lambda x: (x, x.split('.')[-1]), os.listdir(dirpath)))
+    files = list(map(lambda x: (x.encode('utf8', 'surrogateescape').decode('utf8'), x.split('.')[-1]), os.listdir(dirpath)))
     return render_template('display_directory.html', files=files, directory=directory)
 
 
 @app.route('/dircontent/<directory>/<filename>')
 def dircontent(directory, filename):
     dirpath = os.path.join(app.config['PESONALCASES_FOLDER'], directory)
-    filepath = os.path.join(dirpath, filename)
-    return send_file(filepath)
+    fd = open(os.path.join(dirpath, filename).encode('utf8'), 'br')
+    return send_file(fd, mimetype='image/jpeg')
 
 #update Persons set (PersonalCaseDir) = ('Vassiliev') WHERE ID = 5059;
 
