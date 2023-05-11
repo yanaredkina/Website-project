@@ -4,19 +4,17 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width">
         <link rel="stylesheet" href="{{ url_for('static', filename= 'style.css') }}"/>
-        <script src="{{ url_for('static', filename= 'script.js') }}"></script>
         {% block title %} {% endblock %}
     </head>
     
     <body>
-        <h1>Информационная система по описям архива Московского университета</h1>
+        <h1>Информационная система по описям архивного фонда № 418 «Московский университет»</h1>
         <div class="menu">
         <a href="{{ url_for('index')}}">Главная</a>
         <a href="{{url_for('search_form')}}">Поиск</a>
-        <a href="{{ url_for('all')}}">Все записи</a>
+        <a href="{{ url_for('reports', char = '%', year = '*', page = 1)}}">Все записи</a>
         <a href="{{ url_for('upload_batch')}}">Добавить опись</a>
         <a href="{{ url_for('delete_form')}}">Очистить опись</a>
-        <a href="{{ url_for('display_by_page', offset = 0)}}">По страницам</a>
         </div>
         
         {% block content %} {% endblock %}

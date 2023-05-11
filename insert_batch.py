@@ -24,7 +24,7 @@ def insert_batch(batch, protocol, mode):
     connection = sqlite3.connect(os.path.abspath('database.db'))
     cursor = connection.cursor()
     
-    protocol += "----- ERRORS when uploading to the database: \n\n"
+    protocol += '----- ERRORS when uploading to the database: \n\n'
     rowcount = 0
     
     for obj in batch:
@@ -36,54 +36,54 @@ def insert_batch(batch, protocol, mode):
                         WHERE Persons.LastName = ? AND Persons.FirstName = ? AND Persons.MiddleName = ?
                                 AND Reports.Name = ? AND Reports.Year = ? AND PersonRegistry.PersonalCase = ? """
                                                                                                 
-            exist = cursor.execute(query, (obj.lastname, obj.firstname, obj.middlename, obj.report, obj.year, obj.personalcasedir)).fetchone()
+            exist = cursor.execute(query, (obj.lastname, obj.firstname, obj.middlename, obj.report, obj.year, obj.personalcase)).fetchone()
             
             if exist:
-                protocol += str(obj) + "    is already in the database\n"
+                protocol += str(obj) + '    is already in the database\n'
                 continue
             
-            cursor.execute("INSERT INTO Persons (LastName, FirstName, MiddleName, PersonalCaseDir, Note) VALUES (?, ?, ?, ?, ?)",
+            cursor.execute('INSERT INTO Persons (LastName, FirstName, MiddleName, PersonalCaseDir, Note) VALUES (?, ?, ?, ?, ?)',
                          (obj.lastname, obj.firstname, obj.middlename, obj.personalcasedir, obj.note))
             lastpersonID = cursor.lastrowid
             rowcount += 1
             
             
-            exist = cursor.execute("SELECT ID FROM Files WHERE FilePath = ? ", (obj.filepath, )).fetchone()
+            exist = cursor.execute('SELECT ID FROM Files WHERE FilePath = ? ', (obj.filepath, )).fetchone()
             if not exist:
-                cursor.execute("INSERT INTO Files (Type, FilePath) VALUES (?, ?)",
+                cursor.execute('INSERT INTO Files (Type, FilePath) VALUES (?, ?)',
                             (obj.filetype, obj.filepath))
                 fileID = cursor.lastrowid
             else:
                 fileID = exist[0]
                 
                 
-            exist = cursor.execute("SELECT ID FROM Reports WHERE Name = ? AND Year = ? ", (obj.report, obj.year)).fetchone()
+            exist = cursor.execute('SELECT ID FROM Reports WHERE Name = ? AND Year = ? ', (obj.report, obj.year)).fetchone()
             if not exist:
-                cursor.execute("INSERT INTO Reports (Name, Year) VALUES (?, ?)",
+                cursor.execute('INSERT INTO Reports (Name, Year) VALUES (?, ?)',
                             (obj.report, obj.year))
                 reportID = cursor.lastrowid
             else:
                 reportID = exist[0]
 
 
-            exist = cursor.execute("SELECT ID FROM ReportRegistry WHERE FileID = ? AND ReportID = ? ", (fileID, reportID)).fetchone()
+            exist = cursor.execute('SELECT ID FROM ReportRegistry WHERE FileID = ? AND ReportID = ? ', (fileID, reportID)).fetchone()
             if not exist:
-                cursor.execute("INSERT INTO ReportRegistry (FileID, ReportID) VALUES (?, ?)",
+                cursor.execute('INSERT INTO ReportRegistry (FileID, ReportID) VALUES (?, ?)',
                             (fileID, reportID))
             
             
-            cursor.execute("INSERT INTO PersonRegistry (PersonID, FileID, ReportID, PersonalCase, Page) VALUES (?, ?, ?, ?, ?)",
+            cursor.execute('INSERT INTO PersonRegistry (PersonID, FileID, ReportID, PersonalCase, Page) VALUES (?, ?, ?, ?, ?)',
                         (lastpersonID, fileID, reportID, obj.personalcase, obj.page))
 
         
         except sqlite3.Error as e:
-            protocol += str(obj) + "    ERROR: "+ str(e.args) + '\n'
+            protocol += str(obj) + '    ERROR: '+ str(e.args) + '\n'
         
         else:
             if (mode == 'prod'):
                 connection.commit()
     
-    protocol += str(rowcount) + " persons was added\n"
+    protocol += str(rowcount) + ' persons was added\n'
 
     if connection:
         cursor.close()

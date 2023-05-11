@@ -10,9 +10,15 @@
     </h2>
     {% for row in rows %}
     <div>
-        <a id="doc-ref" href='{{ url_for("search_ID", ident = row[0])}}' target="_blank">{{row[1]}} {{row[2]}} {{row[3]}} (оп.{{row[4]}} г.{{row[5]}} д.{{row[6]}})</a>
+    {% if row[7] %}
+        <a id="doc-ref-case" title="есть отсканированные документы дела" href="{{ url_for('search_ID', ident = row[0])}}" target="_blank">{{row[1]}} {{row[2]}} {{row[3]}} (оп.{{row[4]}} г.{{row[5]}} д.{{row[6]}})</a>
+    {% else %}
+        <a id="doc-ref" href="{{ url_for('search_ID', ident = row[0])}}" target="_blank">{{row[1]}} {{row[2]}} {{row[3]}} (оп.{{row[4]}} г.{{row[5]}} д.{{row[6]}})</a>
+    {% endif %}
     </div>
     {% endfor %}
      <p id="text"><small>Всего записей: {{total}}</p>
 
 {% endblock %}
+
+

@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %} <title>Записи</title> {% endblock %}
+    
+{% block content %}
+    
+    <div class="get_reports_list">
+    <ul class="name_list">
+        <li class="все"><a href="{{ url_for('reports', char = '%', year = arg[1], page = 1)}}">все</a></li>
+    	<li class="a"><a href="{{ url_for('reports', char = 'а', year = arg[1], page = 1)}}">а</a></li>
+    	<li class="b"><a href="{{ url_for('reports', char = 'б', year = arg[1], page = 1)}}">б</a></li>
+    	<li class="v"><a href="{{ url_for('reports', char = 'в', year = arg[1], page = 1)}}">в</a></li>
+    	<li class="g"><a href="{{ url_for('reports', char = 'г', year = arg[1], page = 1)}}">г</a></li>
+    	<li class="d"><a href="{{ url_for('reports', char = 'д', year = arg[1], page = 1)}}">д</a></li>
+    	<li class="e"><a href="{{ url_for('reports', char = 'е', year = arg[1], page = 1)}}">е</a></li>
+        <li class="yo"><a href="{{ url_for('reports', char = 'ё', year = arg[1], page = 1)}}">ё</a></li>
+    	<li class="zh"><a href="{{ url_for('reports', char = 'ж', year = arg[1], page = 1)}}">ж</a></li>
+    	<li class="z"><a href="{{ url_for('reports', char = 'з', year = arg[1], page = 1)}}">з</a></li>
+    	<li class="i"><a href="{{ url_for('reports', char = 'и', year = arg[1], page = 1)}}">и</a></li>
+        <li class="ii"><a href="{{ url_for('reports', char = 'й', year = arg[1], page = 1)}}">й</a></li>
+    	<li class="k"><a href="{{ url_for('reports', char = 'к', year = arg[1], page = 1)}}">к</a></li>
+    	<li class="l"><a href="{{ url_for('reports', char = 'л', year = arg[1], page = 1)}}">л</a></li>
+    	<li class="m"><a href="{{ url_for('reports', char = 'м', year = arg[1], page = 1)}}">м</a></li>
+    	<li class="n"><a href="{{ url_for('reports', char = 'н', year = arg[1], page = 1)}}">н</a></li>
+    	<li class="o"><a href="{{ url_for('reports', char = 'о', year = arg[1], page = 1)}}">о</a></li>
+    	<li class="p"><a href="{{ url_for('reports', char = 'п', year = arg[1], page = 1)}}">п</a></li>
+    	<li class="r"><a href="{{ url_for('reports', char = 'р', year = arg[1], page = 1)}}">р</a></li>
+    	<li class="s"><a href="{{ url_for('reports', char = 'с', year = arg[1], page = 1)}}">с</a></li>
+    	<li class="t"><a href="{{ url_for('reports', char = 'т', year = arg[1], page = 1)}}">т</a></li>
+    	<li class="u"><a href="{{ url_for('reports', char = 'у', year = arg[1], page = 1)}}">у</a></li>
+    	<li class="f"><a href="{{ url_for('reports', char = 'ф', year = arg[1], page = 1)}}">ф</a></li>
+    	<li class="h"><a href="{{ url_for('reports', char = 'х', year = arg[1], page = 1)}}">х</a></li>
+    	<li class="ze"><a href="{{ url_for('reports', char = 'ц', year = arg[1], page = 1)}}">ц</a></li>
+    	<li class="ch"><a href="{{ url_for('reports', char = 'ч', year = arg[1], page = 1)}}">ч</a></li>
+    	<li class="sh"><a href="{{ url_for('reports', char = 'ш', year = arg[1], page = 1)}}">ш</a></li>
+        <li class="tsh"><a href="{{ url_for('reports', char = 'щ', year = arg[1], page = 1)}}">щ</a></li>
+    	<li class="ai"><a href="{{ url_for('reports', char = 'ы', year = arg[1], page = 1)}}">ы</a></li>
+    	<li class="ae"><a href="{{ url_for('reports', char = 'э', year = arg[1], page = 1)}}">э</a></li>
+        <li class="yu"><a href="{{ url_for('reports', char = 'ю', year = arg[1], page = 1)}}">ю</a></li>
+        <li class="ya"><a href="{{ url_for('reports', char = 'я', year = arg[1], page = 1)}}">я</a></li>
+    </ul>
+	</div>
+    
+    <form action="{{ url_for('reports', char = arg[0], year = '*', page = 1)}}" method="POST">
+    <h2>Фильтр по году
+        <select name="select_year">
+            <option selected disabled hidden>год</option>
+            <option value="*">все</option>
+            {% for year in years %}
+                <option value="{{year[0]}}">{{year[0]}}</option>
+            {% endfor%}
+         </select>
+         <button type="submit">Применить</button>
+     </h2>
+    </form>
+
+      
+    <h2>Выгрузить список в файл: <a href="{{ url_for('download_report', ftype = 'csv', char = arg[0], year = arg[1])}}"> csv </a>
+                                 <a href="{{ url_for('download_report', ftype = 'txt', char = arg[0], year = arg[1])}}"> txt </a>                       
+    </h2>
+    
+    <div class="names-in-3columns">
+    {% for row in rows %}
+        {% if row[7] %}
+            <a id="doc-ref-case" title="есть отсканированные документы дела" href="{{ url_for('search_ID', ident = row[0])}}" target="_blank">{{row[1]}} {{row[2]}} {{row[3]}} (оп.{{row[4]}} г.{{row[5]}} д.{{row[6]}})</a>
+        {% else %}
+            <a id="doc-ref" href="{{ url_for('search_ID', ident = row[0])}}" target="_blank">{{row[1]}} {{row[2]}} {{row[3]}} (оп.{{row[4]}} г.{{row[5]}} д.{{row[6]}})</a>
+        {% endif %}
+        <br>
+    {% endfor %}
+    </div>
+    
+    <br>
+    <div id="text"> Страницы:
+    {% for page in pages %}
+        <a href="{{url_for('reports', char = arg[0], year = arg[1], page = page)}}">{{page}}</a>
+    {% endfor %}
+    </div>
+    
+    <p id="text"><small>Всего записей: {{total}}</p>
+
+{% endblock %}

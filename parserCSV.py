@@ -10,7 +10,7 @@ def parseCSV(csvFileStream,  uploadfolder, mode):
     csvData = pd.read_csv(csvFileStream, sep=';')
     
     if len(csvData.columns) < 9:
-        return "ERROR: not enough data for upload"
+        return 'ERROR: not enough data for upload'
     
     columnsflags = {'lastname': 0, 'firstname':0, 'middlename':0, 'report':0, 'personalcase':0, 'year':0, 'reportfile':0, 'page':0, 'note':0}
     
@@ -43,27 +43,27 @@ def parseCSV(csvFileStream,  uploadfolder, mode):
             csvData.rename(columns={column: 'Примечание'}, inplace=True)
             columnsflags['note'] == 1
         else:
-            return "incorrect column name: " + column
+            return 'incorrect column name: ' + column
 
     batch = []
-    protocol = "----- Verification with data format in file: \n\n"
+    protocol = '----- Verification with data format in file: \n\n'
     
-    csvData.fillna("", inplace=True)
+    csvData.fillna('', inplace=True)
     print(csvData.convert_dtypes().dtypes)
     for i, row in csvData.iterrows():
         
         errors = 0;
         
         if not row['Фамилия'] or (not isname(row['Фамилия'].strip())):
-            protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + "   ERROR: lastname must have alphabet characters only \n"
+            protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + '   ERROR: lastname must have alphabet characters only \n'
             errors += 1
         
         if row['Имя'] and (not isname(row['Имя'].strip())):
-            protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + "   ERROR: firstname must have alphabet characters only \n"
+            protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + '   ERROR: firstname must have alphabet characters only \n'
             errors += 1
             
         if row['Отчество'] and (not isname(row['Отчество'].strip())):
-            protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + "   ERROR: middlename must have alphabet characters only \n"
+            protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + '   ERROR: middlename must have alphabet characters only \n'
             errors += 1
             
         # #row[3] personaldir
@@ -77,29 +77,29 @@ def parseCSV(csvFileStream,  uploadfolder, mode):
         
         #if not row['Дело'].isdigit():
         if csvData['Дело'].dtypes != 'int64':
-            protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + "   ERROR: PersonalCase must be a number \n"
+            protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + '   ERROR: PersonalCase must be a number \n'
             errors += 1
         
         #if not row['Год'].isdigit():
         if csvData['Год'].dtypes != 'int64':
-            protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + "   ERROR: Year must be a number \n"
+            protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + '   ERROR: Year must be a number \n'
             errors += 1
          
         filepath = os.path.join(uploadfolder, row['Файл_описи'])
         if not (os.path.isfile(filepath)):
-            protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + "   ERROR: File does not exist \n"
+            protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + '   ERROR: File does not exist \n'
             errors += 1
 
         fileformat = row['Файл_описи'].split('.')[-1]
 
         # if not row['Страница'].isdigit():
         if csvData['Страница'].dtypes != 'int64':
-            protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + "   ERROR: Page must be a number \n"
+            protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + '   ERROR: Page must be a number \n'
             errors += 1
         
         if (errors == 0):
-            protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + "       PASSED verification \n"
-            obj = DBobj(row['Фамилия'].strip(), row['Имя'].strip(), row['Отчество'].strip(), "", row['Примечание'], row['Опись'], row['Дело'], row['Год'], row['Файл_описи'], row['Страница'], fileformat)
+            protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + '       PASSED verification \n'
+            obj = DBobj(row['Фамилия'].strip(), row['Имя'].strip(), row['Отчество'].strip(), '', row['Примечание'], row['Опись'], row['Дело'], row['Год'], row['Файл_описи'], row['Страница'], fileformat)
             batch.append(obj)
         
  
