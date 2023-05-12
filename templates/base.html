@@ -15,6 +15,8 @@
         <a href="{{ url_for('reports', char = '%', year = '*', page = 1)}}">Все записи</a>
         <a href="{{ url_for('upload_batch')}}">Добавить опись</a>
         <a href="{{ url_for('delete_form')}}">Очистить опись</a>
+        <a href="{{ url_for('update_report_form')}}">Обновить опись</a>
+        <a href="{{ url_for('update_case_form')}}">Добавить сканы в дело</a>
         </div>
         
         {% block content %} {% endblock %}

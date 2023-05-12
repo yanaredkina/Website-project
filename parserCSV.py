@@ -75,12 +75,12 @@ def parseCSV(csvFileStream,  uploadfolder, mode):
         #         errors += 1
         
         
-        #if not row['Дело'].isdigit():
+
         if csvData['Дело'].dtypes != 'int64':
             protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + '   ERROR: PersonalCase must be a number \n'
             errors += 1
         
-        #if not row['Год'].isdigit():
+
         if csvData['Год'].dtypes != 'int64':
             protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + '   ERROR: Year must be a number \n'
             errors += 1
@@ -92,7 +92,7 @@ def parseCSV(csvFileStream,  uploadfolder, mode):
 
         fileformat = row['Файл_описи'].split('.')[-1]
 
-        # if not row['Страница'].isdigit():
+
         if csvData['Страница'].dtypes != 'int64':
             protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + '   ERROR: Page must be a number \n'
             errors += 1

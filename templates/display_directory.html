@@ -8,8 +8,10 @@
     <div class="doc-display">
         {% if file[1] == "pdf" %}
             <object class="images" id="pdf" data="{{ url_for('dircontent', directory = directory, filename = file[0])}}"></object>
-        {% elif file[1] == "jpg" %}
+        {% elif file[1] == "jpg" or file[1] == "jpeg"%}
             <object class="images" id="jpg" data="{{ url_for('dircontent', directory = directory, filename = file[0])}}" type ="image/jpeg"></object>
+        {% elif file[1] == "tif" or  file[1] == "tiff" %}
+            <object class="images" id="jpg" data="{{ url_for('dircontent', directory = directory, filename = file[0])}}" type ="image/tiff"></object>
         {% endif%}
         <br>
     </div>

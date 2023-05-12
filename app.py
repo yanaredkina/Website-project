@@ -5,6 +5,8 @@ from flask import Flask, render_template, request, url_for, flash, redirect, sen
 from io import StringIO, BytesIO
 from insert_batch import insert_batch, DBobj
 from delete_report import delete_report
+from update_case import update_case
+from update_report import update_report
 from parserCSV import parseCSV
 
       
@@ -20,7 +22,7 @@ def get_db_connection():
     
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'my secret key'
-app.config['UPLOAD_FOLDER'] = os.path.abspath('documents')
+app.config['REPORTS_FOLDER'] = os.path.abspath('reports')
 app.config['PESONALCASES_FOLDER'] = os.path.abspath('personalcases')
 app.config['ENV'] = 'development'
 app.config['DEBUG'] = True
@@ -106,7 +108,7 @@ def content(ident):
     conn = get_db_connection()
     result = conn.execute('SELECT FilePath, Type FROM Files WHERE ID = ?', (ident,)).fetchone()
     conn.close()
-    fullfilepath = os.path.join(app.config['UPLOAD_FOLDER'], result[0])
+    fullfilepath = os.path.join(app.config['REPORTS_FOLDER'], result[0])
     if result[1] == 'jpg':
         return send_file(fullfilepath, mimetype='image/jpeg')
     else: 
@@ -136,7 +138,7 @@ def reports(char, year, page):
     
     conn = get_db_connection()
     result = conn.execute(query, (args, )).fetchall()
-    years = conn.execute('SELECT Reports.Year FROM Reports').fetchall()
+    years = conn.execute('SELECT Reports.Year FROM Reports ORDER BY Reports.Year').fetchall()
     conn.close()
     if not result:
         flash('Ничего не найдено!')
@@ -147,7 +149,7 @@ def reports(char, year, page):
     start = (page - 1) * 60
     end = start + 60
 
-    return render_template('reports.html', rows = result[start:end], arg =[char, year], years = years, pages = pages, total = len(result))
+    return render_template('reports.html', rows = result[start:end], arg =[char, year], years = years, pages = pages, curpage = page, total = len(result))
     
     
 
@@ -203,9 +205,9 @@ def upload_batch():
         stream = StringIO(bytes)
         
         if (mode == 'test'):
-            protocol = parseCSV(stream, app.config['UPLOAD_FOLDER'], 'test')
+            protocol = parseCSV(stream, app.config['REPORTS_FOLDER'], 'test')
         else:
-            protocol = parseCSV(stream, app.config['UPLOAD_FOLDER'], 'prod')
+            protocol = parseCSV(stream, app.config['REPORTS_FOLDER'], 'prod')
         return Response(protocol, mimetype='text/plain', headers={'Content-Disposition':'attachment; filename=uploadprotocol.txt'})
         
     return render_template('upload_batch.html')
@@ -219,7 +221,7 @@ def delete_form():
         return Response(protocol, mimetype='text/plain', headers={'Content-Disposition':'attachment; filename=deleteprotocol.txt'})
     
 
-    query = 'SELECT Reports.ID, Reports.Name, Reports.Year FROM Reports'
+    query = 'SELECT Reports.ID, Reports.Name, Reports.Year FROM Reports ORDER BY Reports.Year'
     conn = get_db_connection()
     result = conn.execute(query).fetchall()
     conn.close()
@@ -230,7 +232,7 @@ def delete_form():
 def display_directory(directory):
     dirpath = os.path.join(app.config['PESONALCASES_FOLDER'], directory)
     if not os.path.exists(dirpath): 
-        flash('Ничего не найдено!')
+        flash('Папка не найдена!')
         return render_template('index.html')
 
     files = list(map(lambda x: (x.encode('utf8', 'surrogateescape').decode('utf8'), x.split('.')[-1]), os.listdir(dirpath)))
@@ -241,9 +243,70 @@ def display_directory(directory):
 def dircontent(directory, filename):
     dirpath = os.path.join(app.config['PESONALCASES_FOLDER'], directory)
     fd = open(os.path.join(dirpath, filename).encode('utf8'), 'br')
-    return send_file(fd, mimetype='image/jpeg')
+    
+    match filename.split('.')[-1]:
+        case 'jpg' |'jpeg':
+            return send_file(fd, mimetype='image/jpg')
+        case 'tif' | 'tiff':
+            return send_file(fd, mimetype='image/tiff')
+        case _:
+            return send_file(fd, mimetype='application/pdf')
 
-#update Persons set (PersonalCaseDir) = ('Vassiliev') WHERE ID = 5059;
+
+@app.route('/update_case_form', methods=['GET', 'POST'])
+def update_case_form():
+    if request.method == 'POST':
+        lastname = request.form['lastname']
+        report = request.form['report']
+        year = request.form['year']
+        case = request.form['case']
+        casedir = request.form['casedir']
+        
+        query = """SELECT Persons.ID FROM Persons 
+                    INNER JOIN PersonRegistry ON Persons.ID=PersonRegistry.PersonID
+                    INNER JOIN Reports on PersonRegistry.ReportID=Reports.ID
+                    WHERE sql_lower(Persons.LastName) = ? AND Reports.Name = ? AND Reports.Year = ? AND PersonRegistry.PersonalCase = ? """
+        
+        conn = get_db_connection()
+        result = conn.execute(query, (sql_lower(lastname), report, year, case)).fetchone()
+        conn.close()
+        
+        if not result:
+            flash('Студент в БД не найден!')
+            render_template('update_case_form.html')
+        
+        dirpath = os.path.join(app.config['PESONALCASES_FOLDER'], casedir)
+        if not os.path.exists(dirpath): 
+            flash('Папка не найдена!')
+            return render_template('update_case_form.html')
+                
+        protocol = update_case(result[0], casedir)
+        return Response(protocol, mimetype='text/plain', headers={'Content-Disposition':'attachment; filename=updateprotocol.txt'})
+
+    else:
+        return render_template('update_case_form.html')
+
+
+@app.route('/update_report_form', methods=['GET', 'POST'])
+def update_report_form():
+    if request.method == 'POST':
+        reportid = request.form.get('select_report')
+        report_file = request.form['report_file']
+        
+        dirpath = os.path.join(app.config['REPORTS_FOLDER'], report_file)
+        if not os.path.exists(dirpath): 
+            flash('Файл не найден!')
+            return render_template('update_report_form.html')
+        
+        protocol = update_report(reportid, report_file)
+        return Response(protocol, mimetype='text/plain', headers={'Content-Disposition':'attachment; filename=updateprotocol.txt'})
+    
+
+    query = 'SELECT Reports.ID, Reports.Name, Reports.Year FROM Reports ORDER BY Reports.Year'
+    conn = get_db_connection()
+    result = conn.execute(query).fetchall()
+    conn.close()
+    return render_template('update_report_form.html', rows = result)
 
     
 if __name__ == "__main__":

@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %} <title>Добавление сканов</title> {% endblock %}
+
+{% block content %}
+    <form class="form" action="/update_case_form" method="post">
+        <h3>Заполните информацию о студенте: </h3>
+        <ul>
+        <li><label for="lastname">Фамилия</label></li>
+        <li><input type="text" name="lastname" value="{{ request.form.lastname}}" required /></li>
+        
+        <li><label for="report">Опись</label></li>
+        <li><input type="text" name="report" value="{{ request.form.report}}" required/></li>
+        
+        <li><label for="year">Год описи</label></li>
+        <li><input type="text" name="year" value="{{ request.form.year}}" required/></li>
+        
+        <li><label for="case">Дело</label></li>
+        <li><input type="text" name="case" value="{{ request.form.case}}" required/></li>
+        
+        <li><label for="casedir">Папка со сканами</label></li>
+        <li><input type="text" name="casedir" value="{{ request.form.casedir}}" required/></li>
+            
+        <li><input id="input" type="submit" value="Добавить"></li>
+        </ul>
+    </form>
+
+{% endblock %}

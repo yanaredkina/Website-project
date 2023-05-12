@@ -18,10 +18,14 @@ class DBobj:
         
     def __str__(self):
         return str(self.lastname) + ' ' + str(self.firstname) + ' ' + str(self.middlename) + ' '
-
+        
+def sql_lower(value):
+    return value.lower()
+    
 
 def insert_batch(batch, protocol, mode):
     connection = sqlite3.connect(os.path.abspath('database.db'))
+    connection.create_function('sql_lower', 1, sql_lower)
     cursor = connection.cursor()
     
     protocol += '----- ERRORS when uploading to the database: \n\n'
@@ -33,10 +37,11 @@ def insert_batch(batch, protocol, mode):
             query = """SELECT Persons.ID FROM Persons 
                         INNER JOIN PersonRegistry ON Persons.ID=PersonRegistry.PersonID
                         INNER JOIN Reports on PersonRegistry.ReportID=Reports.ID
-                        WHERE Persons.LastName = ? AND Persons.FirstName = ? AND Persons.MiddleName = ?
+                        WHERE sql_lower(Persons.LastName) = ? AND sql_lower(Persons.FirstName) = ? AND sql_lower(Persons.MiddleName) = ?
                                 AND Reports.Name = ? AND Reports.Year = ? AND PersonRegistry.PersonalCase = ? """
                                                                                                 
-            exist = cursor.execute(query, (obj.lastname, obj.firstname, obj.middlename, obj.report, obj.year, obj.personalcase)).fetchone()
+            args = (sql_lower(obj.lastname), sql_lower(obj.firstname), sql_lower(obj.middlename), obj.report, obj.year, obj.personalcase)
+            exist = cursor.execute(query, args).fetchone()
             
             if exist:
                 protocol += str(obj) + '    is already in the database\n'

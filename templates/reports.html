@@ -41,10 +41,14 @@
     </ul>
 	</div>
     
+    {% if arg[0] != '%' %}
+        <h2>Фильтр по фамилии: {{arg[0]}}</h2>
+    {% endif %}
+    
     <form action="{{ url_for('reports', char = arg[0], year = '*', page = 1)}}" method="POST">
     <h2>Фильтр по году
         <select name="select_year">
-            <option selected disabled hidden>год</option>
+            <option selected disabled hidden>{{arg[1]}}</option>
             <option value="*">все</option>
             {% for year in years %}
                 <option value="{{year[0]}}">{{year[0]}}</option>
@@ -73,7 +77,12 @@
     <br>
     <div id="text"> Страницы:
     {% for page in pages %}
-        <a href="{{url_for('reports', char = arg[0], year = arg[1], page = page)}}">{{page}}</a>
+        {% if page == curpage %}
+            <a href="{{url_for('reports', char = arg[0], year = arg[1], page = page)}}"><big>{{page}}</a>
+            <small>
+        {% else %}
+            <a href="{{url_for('reports', char = arg[0], year = arg[1], page = page)}}">{{page}}</a>
+        {% endif %}
     {% endfor %}
     </div>
     
