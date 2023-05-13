@@ -165,7 +165,7 @@ def reports(char, year, page):
 @app.route('/download_report/<ftype>/<char>/<year>')
 def download_report(ftype, char, year):
     conn = get_db_connection()
-    query = """SELECT Persons.LastName, Persons.FirstName, Persons.MiddleName, Reports.Name, PersonRegistry.PersonalCase, Reports.Year, Files.FileName, PersonRegistry.Page, Persons.Note
+    query = """SELECT Persons.LastName, Persons.FirstName, Persons.MiddleName, Reports.Name, PersonRegistry.PersonalCase, Reports.Year, Files.FileName, PersonRegistry.Page, Persons.Note, Persons.PersonalCaseDir
                                FROM Persons INNER JOIN PersonRegistry ON Persons.ID=PersonRegistry.PersonID 
                                             INNER JOIN Reports ON PersonRegistry.ReportID=Reports.ID 
                                             LEFT JOIN Files ON PersonRegistry.FileID=Files.ID 
@@ -180,7 +180,7 @@ def download_report(ftype, char, year):
     
     proxy = StringIO()
     writer = csv.writer(proxy, delimiter=';')
-    writer.writerow(['Фамилия', 'Имя', 'Отчество', 'Опись', 'Дело', 'Год', 'Файл_описи', 'Страница', 'Примечание'])
+    writer.writerow(['Фамилия', 'Имя', 'Отчество', 'Опись', 'Дело', 'Год', 'Файл_описи', 'Страница', 'Примечание', 'Папка_дела'])
     writer.writerows(result)
     mem = BytesIO()
     mem.write(proxy.getvalue().encode())
@@ -214,9 +214,9 @@ def upload_batch():
         stream = StringIO(bytes)
         
         if (mode == 'test'):
-            protocol = parseCSV(stream, app.config['REPORTS_FOLDER'], 'test')
+            protocol = parseCSV(stream, app.config['REPORTS_FOLDER'], app.config['PESONALCASES_FOLDER'], 'test')
         else:
-            protocol = parseCSV(stream, app.config['REPORTS_FOLDER'], 'prod')
+            protocol = parseCSV(stream, app.config['REPORTS_FOLDER'], app.config['PESONALCASES_FOLDER'], 'prod')
         return Response(protocol, mimetype='text/plain', headers={'Content-Disposition':'attachment; filename=uploadprotocol.txt'})
         
     return render_template('upload_batch.html')

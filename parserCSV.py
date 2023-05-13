@@ -6,13 +6,13 @@ import re
 def isname(str):
     return re.fullmatch('[a-zA-ZА-Яа-яёй\(\)\s\-]+', str)
 
-def parseCSV(csvFileStream,  reportfolder, mode):
+def parseCSV(csvFileStream,  reportfolder, casefolder, mode):
     csvData = pd.read_csv(csvFileStream, sep=';')
     
-    if len(csvData.columns) < 9:
+    if len(csvData.columns) < 10:
         return 'ERROR: not enough column for upload'
     
-    columnsflags = {'lastname': 0, 'firstname':0, 'middlename':0, 'report':0, 'personalcase':0, 'year':0, 'reportfile':0, 'page':0, 'note':0}
+    columnsflags = {'lastname': 0, 'firstname':0, 'middlename':0, 'report':0, 'personalcase':0, 'year':0, 'reportfile':0, 'page':0, 'note':0, 'casedir': 0}
     
     for column in csvData.columns:
         if column.lower().strip() == 'фамилия' and columnsflags['lastname'] == 0:
@@ -41,6 +41,9 @@ def parseCSV(csvFileStream,  reportfolder, mode):
             columnsflags['page'] == 1
         elif column.lower().strip() == 'примечание' and columnsflags['note'] == 0:
             csvData.rename(columns={column: 'Примечание'}, inplace=True)
+            columnsflags['note'] == 1
+        elif column.lower().strip() == 'папка_дела' and columnsflags['casedir'] == 0:
+            csvData.rename(columns={column: 'Папка_дела'}, inplace=True)
             columnsflags['note'] == 1
         else:
             return 'incorrect column name: ' + column
@@ -93,9 +96,15 @@ def parseCSV(csvFileStream,  reportfolder, mode):
             protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + '   ERROR: Page must be a number \n'
             errors += 1
         
+        if row['Папка_дела']:
+            dirpath = os.path.join(casefolder, str(row['Год']), row['Папка_дела'])
+            if not (os.path.exists(dirpath)):
+                protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + '   ERROR: Personal directory does not exist \n'
+                errors += 1
+            
         if (errors == 0):
             protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + '       PASSED verification \n'
-            obj = DBobj(row['Фамилия'].strip(), row['Имя'].strip(), row['Отчество'].strip(), '', row['Примечание'], row['Опись'], row['Дело'], row['Год'], row['Файл_описи'], row['Страница'], fileformat)
+            obj = DBobj(row['Фамилия'].strip(), row['Имя'].strip(), row['Отчество'].strip(), row['Папка_дела'], row['Примечание'], row['Опись'], row['Дело'], row['Год'], row['Файл_описи'], row['Страница'], fileformat)
             batch.append(obj)
         
  
