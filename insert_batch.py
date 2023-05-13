@@ -3,7 +3,7 @@ import os.path
 from flask import Flask, flash
 
 class DBobj:
-    def __init__(self, lastname, firstname, middlename, personalcasedir, note, report, personalcase, year, filepath, page, filetype):
+    def __init__(self, lastname, firstname, middlename, personalcasedir, note, report, personalcase, year, filename, page, filetype):
         self.lastname = lastname
         self.firstname = firstname
         self.middlename = middlename
@@ -14,7 +14,7 @@ class DBobj:
         self.personalcase = personalcase
         self.page = page
         self.filetype = filetype
-        self.filepath = filepath
+        self.filename = filename
         
     def __str__(self):
         return str(self.lastname) + ' ' + str(self.firstname) + ' ' + str(self.middlename) + ' '
@@ -53,10 +53,10 @@ def insert_batch(batch, protocol, mode):
             rowcount += 1
             
             
-            exist = cursor.execute('SELECT ID FROM Files WHERE FilePath = ? ', (obj.filepath, )).fetchone()
+            exist = cursor.execute('SELECT ID FROM Files WHERE FileName = ? ', (obj.filename, )).fetchone()
             if not exist:
-                cursor.execute('INSERT INTO Files (Type, FilePath) VALUES (?, ?)',
-                            (obj.filetype, obj.filepath))
+                cursor.execute('INSERT INTO Files (Type, FileName) VALUES (?, ?)',
+                            (obj.filetype, obj.filename))
                 fileID = cursor.lastrowid
             else:
                 fileID = exist[0]

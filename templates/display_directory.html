@@ -6,12 +6,16 @@
     
     {% for file in files %}
     <div class="doc-display">
-        {% if file[1] == "pdf" %}
-            <object class="images" id="pdf" data="{{ url_for('dircontent', directory = directory, filename = file[0])}}"></object>
-        {% elif file[1] == "jpg" or file[1] == "jpeg"%}
-            <object class="images" id="jpg" data="{{ url_for('dircontent', directory = directory, filename = file[0])}}" type ="image/jpeg"></object>
-        {% elif file[1] == "tif" or  file[1] == "tiff" %}
-            <object class="images" id="jpg" data="{{ url_for('dircontent', directory = directory, filename = file[0])}}" type ="image/tiff"></object>
+        {% if file[1] == "pdf" or file[1] == "PDF"%}
+            <object id="pdf" data="{{ url_for('dircontent', year = year, directory = directory, filename = file[0])}}"></object>
+        {% elif file[1] == "jpg" or file[1] == "jpeg" or file[1] == "JPG" or file[1] == "JPEG"%}
+            <object id="image" data="{{ url_for('dircontent', year = year, directory = directory, filename = file[0])}}" type ="image/jpeg"></object>
+        {% elif file[1] == "tif" or  file[1] == "tiff" or file[1] == "TIFF" or file[1] == "TIF"%}
+            <object id="image" data="{{ url_for('dircontent', year = year, directory = directory, filename = file[0])}}" type ="image/tiff"></object>
+        {% elif file[1] == "png" or  file[1] == "PNG"%}
+            <object id="image" data="{{ url_for('dircontent', year = year, directory = directory, filename = file[0])}}" type ="image/png"></object>
+        {% elif file[1] == "gif" or  file[1] == "GIF"%}
+            <object id="image" data="{{ url_for('dircontent', year = year, directory = directory, filename = file[0])}}" type ="image/gif"></object>
         {% endif%}
         <br>
     </div>

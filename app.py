@@ -9,6 +9,13 @@ from update_case import update_case
 from update_report import update_report
 from parserCSV import parseCSV
 
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'my secret key'
+app.config['REPORTS_FOLDER'] = os.path.abspath('reports')               #указать абсолютный путь к фактическому местоположению описей на диске
+app.config['PESONALCASES_FOLDER'] = os.path.abspath('personalcases')    #указать абсолютный путь к фактическому местоположению папок на диске
+app.config['ENV'] = 'development'
+app.config['DEBUG'] = True
+
       
 def sql_lower(value):
     return value.lower()
@@ -19,13 +26,6 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     conn.create_function('sql_lower', 1, sql_lower)
     return conn
-    
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'my secret key'
-app.config['REPORTS_FOLDER'] = os.path.abspath('reports')
-app.config['PESONALCASES_FOLDER'] = os.path.abspath('personalcases')
-app.config['ENV'] = 'development'
-app.config['DEBUG'] = True
     
 @app.route('/')
 def index():
@@ -99,6 +99,7 @@ def search_ID(ident):
     if not result:
         flash('Ничего не найдено!')
         return redirect(url_for('search'))
+    
     arguments = [result[0][1], result[0][2], result[0][3]]
     return render_template('display_results.html', rows = result, arg=arguments) 
 
@@ -106,14 +107,24 @@ def search_ID(ident):
 @app.route('/content/<int:ident>')
 def content(ident):
     conn = get_db_connection()
-    result = conn.execute('SELECT FilePath, Type FROM Files WHERE ID = ?', (ident,)).fetchone()
+    result = conn.execute('SELECT FileName, Type FROM Files WHERE ID = ?', (ident,)).fetchone()
     conn.close()
     fullfilepath = os.path.join(app.config['REPORTS_FOLDER'], result[0])
-    if result[1] == 'jpg':
-        return send_file(fullfilepath, mimetype='image/jpeg')
-    else: 
-        return send_file(fullfilepath, mimetype='application/pdf')
-
+    if not (os.path.isfile(fullfilepath)):
+        return Response('НЕВОЗМОЖНО ОТОБРАЗИТЬ ФАЙЛ ОПИСИ: УКАЗАННОГО В БД ФАЙЛА НЕТ НА ДИСКЕ! (' + (fullfilepath) + ')', mimetype='text/plain')
+        
+    
+    match result[1]:
+        case 'jpg' |'jpeg':
+            return send_file(fullfilepath, mimetype='image/jpeg')
+        case 'tif' | 'tiff':
+            return send_file(fullfilepath, mimetype='image/tiff')
+        case 'png':
+            return send_file(fullfilepath, mimetype='image/png')
+        case 'gif':
+            return send_file(fullfilepath, mimetype='image/gif')
+        case _:
+            return send_file(fullfilepath, mimetype='application/pdf')
 
 
 @app.route('/reports/<char>/<year>/<int:page>', methods=['POST', 'GET'])
@@ -156,7 +167,7 @@ def reports(char, year, page):
 @app.route('/download_report/<ftype>/<char>/<year>')
 def download_report(ftype, char, year):
     conn = get_db_connection()
-    query = """SELECT Persons.LastName, Persons.FirstName, Persons.MiddleName, Reports.Name, PersonRegistry.PersonalCase, Reports.Year, Files.FilePath, PersonRegistry.Page, Persons.Note
+    query = """SELECT Persons.LastName, Persons.FirstName, Persons.MiddleName, Reports.Name, PersonRegistry.PersonalCase, Reports.Year, Files.FileName, PersonRegistry.Page, Persons.Note
                                FROM Persons INNER JOIN PersonRegistry ON Persons.ID=PersonRegistry.PersonID 
                                             INNER JOIN Reports ON PersonRegistry.ReportID=Reports.ID 
                                             INNER JOIN Files ON PersonRegistry.FileID=Files.ID 
@@ -228,27 +239,31 @@ def delete_form():
     return render_template('delete_form.html', rows = result)
     
 
-@app.route('/display_directory/<directory>')
-def display_directory(directory):
-    dirpath = os.path.join(app.config['PESONALCASES_FOLDER'], directory)
-    if not os.path.exists(dirpath): 
-        flash('Папка не найдена!')
-        return render_template('index.html')
+@app.route('/display_directory/<year>/<directory>')
+def display_directory(year, directory):
+    dirpath = os.path.join(app.config['PESONALCASES_FOLDER'], year, directory)
+    if not os.path.exists(dirpath):
+        return Response('НЕВОЗМОЖНО ПЕРЕЙТИ В ПАПКУ ЛИЧНОГО ДЕЛА: УКАЗАННОЙ В БД ПАПКИ НЕТ НА ДИСКЕ! (' + (dirpath) + ')', mimetype='text/plain')
+
 
     files = list(map(lambda x: (x.encode('utf8', 'surrogateescape').decode('utf8'), x.split('.')[-1]), os.listdir(dirpath)))
-    return render_template('display_directory.html', files=files, directory=directory)
+    return render_template('display_directory.html', files=files, directory=directory, year=year)
 
 
-@app.route('/dircontent/<directory>/<filename>')
-def dircontent(directory, filename):
-    dirpath = os.path.join(app.config['PESONALCASES_FOLDER'], directory)
+@app.route('/dircontent/<year>/<directory>/<filename>')
+def dircontent(year, directory, filename):
+    dirpath = os.path.join(app.config['PESONALCASES_FOLDER'], year, directory)
     fd = open(os.path.join(dirpath, filename).encode('utf8'), 'br')
     
     match filename.split('.')[-1]:
-        case 'jpg' |'jpeg':
+        case 'jpg' |'jpeg' | 'JPEG' | 'JPG':
             return send_file(fd, mimetype='image/jpg')
-        case 'tif' | 'tiff':
+        case 'tif' | 'tiff' | 'TIFF' | 'TIF':
             return send_file(fd, mimetype='image/tiff')
+        case 'png' | 'PNG':
+            return send_file(fd, mimetype='image/png')
+        case 'gif' | 'GIF':
+            return send_file(fd, mimetype='image/gif')
         case _:
             return send_file(fd, mimetype='application/pdf')
 
@@ -273,9 +288,9 @@ def update_case_form():
         
         if not result:
             flash('Студент в БД не найден!')
-            render_template('update_case_form.html')
+            return render_template('update_case_form.html')
         
-        dirpath = os.path.join(app.config['PESONALCASES_FOLDER'], casedir)
+        dirpath = os.path.join(app.config['PESONALCASES_FOLDER'], year, casedir)
         if not os.path.exists(dirpath): 
             flash('Папка не найдена!')
             return render_template('update_case_form.html')
@@ -283,29 +298,29 @@ def update_case_form():
         protocol = update_case(result[0], casedir)
         return Response(protocol, mimetype='text/plain', headers={'Content-Disposition':'attachment; filename=updateprotocol.txt'})
 
-    else:
-        return render_template('update_case_form.html')
+    return render_template('update_case_form.html')
 
 
 @app.route('/update_report_form', methods=['GET', 'POST'])
 def update_report_form():
-    if request.method == 'POST':
-        reportid = request.form.get('select_report')
-        report_file = request.form['report_file']
-        
-        dirpath = os.path.join(app.config['REPORTS_FOLDER'], report_file)
-        if not os.path.exists(dirpath): 
-            flash('Файл не найден!')
-            return render_template('update_report_form.html')
-        
-        protocol = update_report(reportid, report_file)
-        return Response(protocol, mimetype='text/plain', headers={'Content-Disposition':'attachment; filename=updateprotocol.txt'})
     
-
     query = 'SELECT Reports.ID, Reports.Name, Reports.Year FROM Reports ORDER BY Reports.Year'
     conn = get_db_connection()
     result = conn.execute(query).fetchall()
     conn.close()
+    
+    if request.method == 'POST':
+        reportid = request.form.get('select_report')
+        report_filename = request.form['report_file']
+        
+        fullfilepath = os.path.join(app.config['REPORTS_FOLDER'], report_filename)
+        if not os.path.exists(fullfilepath): 
+            flash('Файл не найден!')
+            return render_template('update_report_form.html', rows = result)
+        
+        protocol = update_report(reportid, report_filename)
+        return Response(protocol, mimetype='text/plain', headers={'Content-Disposition':'attachment; filename=updateprotocol.txt'})
+    
     return render_template('update_report_form.html', rows = result)
 
     

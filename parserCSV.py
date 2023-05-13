@@ -6,7 +6,7 @@ import re
 def isname(str):
     return re.fullmatch('[a-zA-ZА-Яа-яёй\(\)\s\-]+', str)
 
-def parseCSV(csvFileStream,  uploadfolder, mode):
+def parseCSV(csvFileStream,  reportfolder, mode):
     csvData = pd.read_csv(csvFileStream, sep=';')
     
     if len(csvData.columns) < 9:
@@ -66,16 +66,7 @@ def parseCSV(csvFileStream,  uploadfolder, mode):
             protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + '   ERROR: middlename must have alphabet characters only \n'
             errors += 1
             
-        # #row[3] personaldir
-        # dirpath = ""
-        # if (row[3]):
-        #     dirpath = row[3]
-        #     if not (os.path.isdir(dirpath)):
-        #         protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + " ERROR: Directory path does not exist \n"
-        #         errors += 1
-        
-        
-
+            
         if csvData['Дело'].dtypes != 'int64':
             protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + '   ERROR: PersonalCase must be a number \n'
             errors += 1
@@ -85,12 +76,12 @@ def parseCSV(csvFileStream,  uploadfolder, mode):
             protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + '   ERROR: Year must be a number \n'
             errors += 1
          
-        filepath = os.path.join(uploadfolder, row['Файл_описи'])
+        filepath = os.path.join(reportfolder, row['Файл_описи'])
         if not (os.path.isfile(filepath)):
             protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + '   ERROR: File does not exist \n'
             errors += 1
 
-        fileformat = row['Файл_описи'].split('.')[-1]
+        fileformat = row['Файл_описи'].split('.')[-1].lower()
 
 
         if csvData['Страница'].dtypes != 'int64':

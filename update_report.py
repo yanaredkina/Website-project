@@ -3,7 +3,7 @@ import os.path
 from flask import Flask, flash
 
 
-def update_report(reportid, report_file):
+def update_report(reportid, report_filename):
     connection = sqlite3.connect(os.path.abspath('database.db'))
     cursor = connection.cursor()
     
@@ -12,16 +12,16 @@ def update_report(reportid, report_file):
     try:
         exist = cursor.execute('SELECT FileID FROM ReportRegistry WHERE ReportID = ? ', (reportid, )).fetchone()
         if exist:
-            protocol += 'Report already with file in DB\n PLEASE GO TO DELETE + INSERT METHOD INSTEAD\n'
+            protocol += 'Report already with file in DB\n please go to DELETE + INSERT method instead\n'
         
         else:
-            exist = cursor.execute('SELECT ID FROM Files WHERE FilePath = ? ', (report_file, )).fetchone()
+            exist = cursor.execute('SELECT ID FROM Files WHERE FileName = ? ', (report_filename, )).fetchone()
             if exist:
-                protocol += 'File with name ' + report_file + ' is already in the database with ID=' + str(exist[0]) + '\n'
+                protocol += 'File with name ' + report_filename + ' is already in the database with ID=' + str(exist[0]) + '\n'
             
             else:
-                cursor.execute('INSERT INTO Files (Type, FilePath) VALUES (?, ?)',
-                            (report_file.split('.')[-1], report_file))
+                cursor.execute('INSERT INTO Files (Type, FileName) VALUES (?, ?)',
+                            (report_filename.split('.')[-1].lower(), report_filename))
                 fileid = cursor.lastrowid
             
             

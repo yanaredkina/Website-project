@@ -10,14 +10,21 @@
     </h2>
     {% for row in rows %}
     <div class="doc-display">
-        <p>{{row[1]}} {{row[2]}} {{row[3]}}: Опись № {{row[5]}} Год {{row[6]}} Страница {{row[7]}} Дело {{row[8]}}<p>
+        <p>{{row[1]}} {{row[2]}} {{row[3]}}: Опись № {{row[5]}} Год {{row[6]}} Дело {{row[8]}} Страница {{row[7]}}<p>
             {% if row[4] %}
-                <a id="doc-ref-case" href="{{ url_for('display_directory', directory = row[4])}}" target="_blank">Архив личного дела<br></a>
+                <a id="doc-ref-case" href="{{ url_for('display_directory', year = row[6], directory = row[4])}}" target="_blank">Архив личного дела<br></a>
             {% endif %}
-            {% if row[10] == "pdf" %}
-            <object class="images" id="pdf" data="{{ url_for('content', ident = row[9])}}#page={{row[7]}}"></object>
-            {% else %}
-            <object class="images" id="jpg" data="{{ url_for('content', ident = row[9])}}" type ="image/jpeg"></object>
+            
+            {% if row[10] == "pdf"%}
+                <object id="pdf" data="{{ url_for('content', ident = row[9])}}#page={{row[7]}}"></object>
+            {% elif row[10] == "tif" or row[10] == "tiff" %}
+                <object id="image" data="{{ url_for('content', ident = row[9])}}" type ="image/tiff"></object>
+            {% elif row[10] == "jpg" or row[10] == "jpeg" %}
+                <object id="image" data="{{ url_for('content', ident = row[9])}}" type ="image/jpeg"></object>
+            {% elif row[10] == "png" %}
+                <object id="image" data="{{ url_for('content', ident = row[9])}}" type ="image/png"></object>
+            {% elif row[10] == "gif" %}
+                <object id="image" data="{{ url_for('content', ident = row[9])}}" type ="image/gif"></object>
             {% endif%}
         <br>
     </div>
