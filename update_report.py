@@ -12,27 +12,22 @@ def update_report(reportid, report_filename):
     try:
         exist = cursor.execute('SELECT FileID FROM ReportRegistry WHERE ReportID = ? ', (reportid, )).fetchone()
         if exist:
-            protocol += 'Report already with file in DB\n please go to DELETE + INSERT method instead\n'
-        
+            protocol += 'Report already with file in DB\nPlease go to DELETE + INSERT method instead\n'     
+            
         else:
-            exist = cursor.execute('SELECT ID FROM Files WHERE FileName = ? ', (report_filename, )).fetchone()
-            if exist:
-                protocol += 'File with name ' + report_filename + ' is already in the database with ID=' + str(exist[0]) + '\n'
-            
-            else:
-                cursor.execute('INSERT INTO Files (Type, FileName) VALUES (?, ?)',
-                            (report_filename.split('.')[-1].lower(), report_filename))
-                fileid = cursor.lastrowid
-            
-            
-                cursor.execute('INSERT INTO ReportRegistry (FileID, ReportID) VALUES (?, ?)',
-                            (fileid, reportid))
-            
-            
-                cursor.execute('UPDATE PersonRegistry SET (FileID) = (?) WHERE ReportID = ?',
-                            (fileid, reportid))
-            
-                protocol += '\nUPDATE COMLETED\n'
+            cursor.execute('INSERT INTO Files (Type, FileName) VALUES (?, ?)',
+                        (report_filename.split('.')[-1].lower(), report_filename))
+            fileid = cursor.lastrowid
+        
+        
+            cursor.execute('INSERT INTO ReportRegistry (FileID, ReportID) VALUES (?, ?)',
+                        (fileid, reportid))
+        
+        
+            cursor.execute('UPDATE PersonRegistry SET (FileID) = (?) WHERE ReportID = ?',
+                        (fileid, reportid))
+        
+            protocol += '\nUPDATE COMLETED\n'
     
     except sqlite3.Error as e:
         protocol += 'ERROR: '+ str(e.args) + '\n'

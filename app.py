@@ -89,7 +89,7 @@ def search_ID(ident):
     query = """SELECT Persons.ID, Persons.LastName, Persons.FirstName, Persons.MiddleName, Persons.PersonalCaseDir, Reports.Name, Reports.Year, PersonRegistry.Page, PersonRegistry.PersonalCase, Files.ID, Files.Type
                             FROM Persons INNER JOIN PersonRegistry ON Persons.ID=PersonRegistry.PersonID 
                                          INNER JOIN Reports ON PersonRegistry.ReportID=Reports.ID 
-                                         INNER JOIN Files ON PersonRegistry.FileID=Files.ID 
+                                         LEFT JOIN Files ON PersonRegistry.FileID=Files.ID 
                             WHERE Persons.ID = ? 
                             ORDER BY Persons.LastName, Persons.FirstName, Persons.MiddleName """          
                        
@@ -170,7 +170,7 @@ def download_report(ftype, char, year):
     query = """SELECT Persons.LastName, Persons.FirstName, Persons.MiddleName, Reports.Name, PersonRegistry.PersonalCase, Reports.Year, Files.FileName, PersonRegistry.Page, Persons.Note
                                FROM Persons INNER JOIN PersonRegistry ON Persons.ID=PersonRegistry.PersonID 
                                             INNER JOIN Reports ON PersonRegistry.ReportID=Reports.ID 
-                                            INNER JOIN Files ON PersonRegistry.FileID=Files.ID 
+                                            LEFT JOIN Files ON PersonRegistry.FileID=Files.ID 
                                WHERE sql_lower(Persons.LastName) LIKE ? """
     
     if (year != '*'):
@@ -182,7 +182,7 @@ def download_report(ftype, char, year):
     
     proxy = StringIO()
     writer = csv.writer(proxy)
-    writer.writerow(['Фамилия', 'Имя', 'Отчество', 'Опись', 'Дело', 'Год', 'Файл описи', 'Страница', 'Примечание'])
+    writer.writerow(['Фамилия', 'Имя', 'Отчество', 'Опись', 'Дело', 'Год', 'Файл_описи', 'Страница', 'Примечание'])
     writer.writerows(result)
     mem = BytesIO()
     mem.write(proxy.getvalue().encode())
@@ -226,16 +226,20 @@ def upload_batch():
 
 @app.route('/delete_form', methods=['GET', 'POST'])
 def delete_form():
-    if request.method == 'POST':
-        reportid = request.form.get('select_report')
-        protocol = delete_report(reportid)
-        return Response(protocol, mimetype='text/plain', headers={'Content-Disposition':'attachment; filename=deleteprotocol.txt'})
-    
-
     query = 'SELECT Reports.ID, Reports.Name, Reports.Year FROM Reports ORDER BY Reports.Year'
     conn = get_db_connection()
     result = conn.execute(query).fetchall()
     conn.close()
+    
+    if request.method == 'POST':
+        reportid = request.form.get('select_report')
+        if not reportid:
+            flash('Опись не выбрана')
+            return render_template('delete_form.html', rows = result)
+        
+        protocol = delete_report(reportid)
+        return Response(protocol, mimetype='text/plain', headers={'Content-Disposition':'attachment; filename=deleteprotocol.txt'})
+    
     return render_template('delete_form.html', rows = result)
     
 
@@ -311,6 +315,10 @@ def update_report_form():
     
     if request.method == 'POST':
         reportid = request.form.get('select_report')
+        if not reportid:
+            flash('Опись не выбрана')
+            return render_template('update_report_form.html', rows = result)
+        
         report_filename = request.form['report_file']
         
         fullfilepath = os.path.join(app.config['REPORTS_FOLDER'], report_filename)

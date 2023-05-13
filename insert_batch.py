@@ -52,33 +52,31 @@ def insert_batch(batch, protocol, mode):
             lastpersonID = cursor.lastrowid
             rowcount += 1
             
-            
-            exist = cursor.execute('SELECT ID FROM Files WHERE FileName = ? ', (obj.filename, )).fetchone()
-            if not exist:
-                cursor.execute('INSERT INTO Files (Type, FileName) VALUES (?, ?)',
-                            (obj.filetype, obj.filename))
-                fileID = cursor.lastrowid
+            if obj.filename:            
+                exist = cursor.execute('SELECT ID FROM Files WHERE FileName = ? ', (obj.filename, )).fetchone()
+                if not exist:
+                    cursor.execute('INSERT INTO Files (Type, FileName) VALUES (?, ?)', (obj.filetype, obj.filename))
+                    fileID = cursor.lastrowid
+                else:
+                    fileID = exist[0]
             else:
-                fileID = exist[0]
-                
+                fileID = ''    
                 
             exist = cursor.execute('SELECT ID FROM Reports WHERE Name = ? AND Year = ? ', (obj.report, obj.year)).fetchone()
             if not exist:
-                cursor.execute('INSERT INTO Reports (Name, Year) VALUES (?, ?)',
-                            (obj.report, obj.year))
+                cursor.execute('INSERT INTO Reports (Name, Year) VALUES (?, ?)', (obj.report, obj.year))
                 reportID = cursor.lastrowid
             else:
                 reportID = exist[0]
 
-
-            exist = cursor.execute('SELECT ID FROM ReportRegistry WHERE FileID = ? AND ReportID = ? ', (fileID, reportID)).fetchone()
-            if not exist:
-                cursor.execute('INSERT INTO ReportRegistry (FileID, ReportID) VALUES (?, ?)',
-                            (fileID, reportID))
+            if obj.filename:
+                exist = cursor.execute('SELECT ID FROM ReportRegistry WHERE FileID = ? AND ReportID = ? ', (fileID, reportID)).fetchone()
+                if not exist:
+                    cursor.execute('INSERT INTO ReportRegistry (FileID, ReportID) VALUES (?, ?)', (fileID, reportID))
             
             
             cursor.execute('INSERT INTO PersonRegistry (PersonID, FileID, ReportID, PersonalCase, Page) VALUES (?, ?, ?, ?, ?)',
-                        (lastpersonID, fileID, reportID, obj.personalcase, obj.page))
+                            (lastpersonID, fileID, reportID, obj.personalcase, obj.page))
 
         
         except sqlite3.Error as e:

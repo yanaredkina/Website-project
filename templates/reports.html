@@ -63,7 +63,12 @@
                                  <a href="{{ url_for('download_report', ftype = 'txt', char = arg[0], year = arg[1])}}"> txt </a>                       
     </h2>
     
-    <div class="names-in-3columns">
+    {% if rows | length > 1 %}
+        <div class="names-in-3columns">
+    {% else %}
+        <div>
+    {% endif %}
+    
     {% for row in rows %}
         {% if row[7] %}
             <a id="doc-ref-case" title="есть отсканированные документы дела" href="{{ url_for('search_ID', ident = row[0])}}" target="_blank">{{row[1]}} {{row[2]}} {{row[3]}} (оп.{{row[4]}} г.{{row[5]}} д.{{row[6]}})</a>

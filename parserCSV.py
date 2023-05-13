@@ -7,10 +7,10 @@ def isname(str):
     return re.fullmatch('[a-zA-ZА-Яа-яёй\(\)\s\-]+', str)
 
 def parseCSV(csvFileStream,  reportfolder, mode):
-    csvData = pd.read_csv(csvFileStream, sep=';')
+    csvData = pd.read_csv(csvFileStream, sep=';|,')
     
     if len(csvData.columns) < 9:
-        return 'ERROR: not enough data for upload'
+        return 'ERROR: not enough column for upload'
     
     columnsflags = {'lastname': 0, 'firstname':0, 'middlename':0, 'report':0, 'personalcase':0, 'year':0, 'reportfile':0, 'page':0, 'note':0}
     
@@ -49,40 +49,45 @@ def parseCSV(csvFileStream,  reportfolder, mode):
     protocol = '----- Verification with data format in file: \n\n'
     
     csvData.fillna('', inplace=True)
-    print(csvData.convert_dtypes().dtypes)
+
     for i, row in csvData.iterrows():
         
         errors = 0;
         
         if not row['Фамилия'] or (not isname(row['Фамилия'].strip())):
-            protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + '   ERROR: lastname must have alphabet characters only \n'
+            protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + '   ERROR: Lastname must have alphabet characters only \n'
             errors += 1
         
         if row['Имя'] and (not isname(row['Имя'].strip())):
-            protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + '   ERROR: firstname must have alphabet characters only \n'
+            protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + '   ERROR: Firstname must have alphabet characters only \n'
             errors += 1
             
         if row['Отчество'] and (not isname(row['Отчество'].strip())):
-            protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + '   ERROR: middlename must have alphabet characters only \n'
+            protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + '   ERROR: Middlename must have alphabet characters only \n'
+            errors += 1
+        
+        if not row['Опись']: 
+            protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + '   ERROR: Report is empty \n'
             errors += 1
             
-            
-        if csvData['Дело'].dtypes != 'int64':
+        if not row['Дело'] or (csvData['Дело'].dtypes != 'int64'):
             protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + '   ERROR: PersonalCase must be a number \n'
             errors += 1
         
-
-        if csvData['Год'].dtypes != 'int64':
+        if not row['Год'] or (csvData['Год'].dtypes != 'int64'):
             protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + '   ERROR: Year must be a number \n'
             errors += 1
          
-        filepath = os.path.join(reportfolder, row['Файл_описи'])
-        if not (os.path.isfile(filepath)):
-            protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + '   ERROR: File does not exist \n'
-            errors += 1
-
-        fileformat = row['Файл_описи'].split('.')[-1].lower()
-
+        if row['Файл_описи']:
+            filepath = os.path.join(reportfolder, row['Файл_описи'])
+            if not (os.path.isfile(filepath)):
+                protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + '   ERROR: File does not exist \n'
+                errors += 1
+            else:
+                fileformat = row['Файл_описи'].split('.')[-1].lower()
+        else:
+            fileformat = ''
+        
 
         if csvData['Страница'].dtypes != 'int64':
             protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + '   ERROR: Page must be a number \n'
