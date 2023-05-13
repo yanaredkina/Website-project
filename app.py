@@ -113,18 +113,16 @@ def content(ident):
     if not (os.path.isfile(fullfilepath)):
         return Response('НЕВОЗМОЖНО ОТОБРАЗИТЬ ФАЙЛ ОПИСИ: УКАЗАННОГО В БД ФАЙЛА НЕТ НА ДИСКЕ! (' + (fullfilepath) + ')', mimetype='text/plain')
         
-    
-    match result[1]:
-        case 'jpg' |'jpeg':
-            return send_file(fullfilepath, mimetype='image/jpeg')
-        case 'tif' | 'tiff':
-            return send_file(fullfilepath, mimetype='image/tiff')
-        case 'png':
-            return send_file(fullfilepath, mimetype='image/png')
-        case 'gif':
-            return send_file(fullfilepath, mimetype='image/gif')
-        case _:
-            return send_file(fullfilepath, mimetype='application/pdf')
+    if result[1] == 'jpg' or result[1] =='jpeg':
+        return send_file(fullfilepath, mimetype='image/jpeg')
+    if result[1] == 'tif' or result[1] == 'tiff':
+        return send_file(fullfilepath, mimetype='image/tiff')
+    if result[1] =='png':
+        return send_file(fullfilepath, mimetype='image/png')
+    if result[1] =='gif':
+        return send_file(fullfilepath, mimetype='image/gif')
+    else:
+        return send_file(fullfilepath, mimetype='application/pdf')  
 
 
 @app.route('/reports/<char>/<year>/<int:page>', methods=['POST', 'GET'])
@@ -181,7 +179,7 @@ def download_report(ftype, char, year):
     conn.close()
     
     proxy = StringIO()
-    writer = csv.writer(proxy)
+    writer = csv.writer(proxy, delimiter=';')
     writer.writerow(['Фамилия', 'Имя', 'Отчество', 'Опись', 'Дело', 'Год', 'Файл_описи', 'Страница', 'Примечание'])
     writer.writerows(result)
     mem = BytesIO()
@@ -259,18 +257,18 @@ def dircontent(year, directory, filename):
     dirpath = os.path.join(app.config['PESONALCASES_FOLDER'], year, directory)
     fd = open(os.path.join(dirpath, filename).encode('utf8'), 'br')
     
-    match filename.split('.')[-1]:
-        case 'jpg' |'jpeg' | 'JPEG' | 'JPG':
-            return send_file(fd, mimetype='image/jpg')
-        case 'tif' | 'tiff' | 'TIFF' | 'TIF':
-            return send_file(fd, mimetype='image/tiff')
-        case 'png' | 'PNG':
-            return send_file(fd, mimetype='image/png')
-        case 'gif' | 'GIF':
-            return send_file(fd, mimetype='image/gif')
-        case _:
-            return send_file(fd, mimetype='application/pdf')
-
+    filetype = filename.split('.')[-1]
+    
+    if filetype == 'jpg' or filetype =='jpeg' or filetype == 'JPEG' or filetype == 'JPG':
+        return send_file(fd, mimetype='image/jpeg')
+    if filetype == 'tif' or filetype == 'tiff' or filetype == 'TIFF' or filetype == 'TIF':
+        return send_file(fd, mimetype='image/tiff')
+    if filetype =='png' or filetype == 'PNG':
+        return send_file(fd, mimetype='image/png')
+    if filetype =='gif' or filetype == 'GIF':
+        return send_file(fd, mimetype='image/gif')
+    else:
+        return send_file(fd, mimetype='application/pdf')
 
 @app.route('/update_case_form', methods=['GET', 'POST'])
 def update_case_form():

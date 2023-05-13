@@ -7,7 +7,7 @@ def isname(str):
     return re.fullmatch('[a-zA-ZА-Яа-яёй\(\)\s\-]+', str)
 
 def parseCSV(csvFileStream,  reportfolder, mode):
-    csvData = pd.read_csv(csvFileStream, sep=';|,')
+    csvData = pd.read_csv(csvFileStream, sep=';')
     
     if len(csvData.columns) < 9:
         return 'ERROR: not enough column for upload'
