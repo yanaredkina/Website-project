@@ -5,9 +5,10 @@ import re
 
 def isname(str):
     return re.fullmatch('[a-zA-ZА-Яа-яёй\(\)\s\-]+', str)
+    
 
 def parseCSV(csvFileStream,  reportfolder, casefolder, mode):
-    csvData = pd.read_csv(csvFileStream, sep=';')
+    csvData = pd.read_csv(csvFileStream, sep=';', dtype=object)
     
     if len(csvData.columns) < 10:
         return 'ERROR: not enough column for upload'
@@ -73,11 +74,11 @@ def parseCSV(csvFileStream,  reportfolder, casefolder, mode):
             protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + '   ERROR: Report is empty \n'
             errors += 1
             
-        if not row['Дело'] or (csvData['Дело'].dtypes != 'int64'):
+        if not row['Дело'] or (not row['Дело'].isdigit()):
             protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + '   ERROR: PersonalCase must be a number \n'
             errors += 1
         
-        if not row['Год'] or (csvData['Год'].dtypes != 'int64'):
+        if not row['Год'] or (not row['Год'].isdigit()):
             protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + '   ERROR: Year must be a number \n'
             errors += 1
          
@@ -92,7 +93,7 @@ def parseCSV(csvFileStream,  reportfolder, casefolder, mode):
             fileformat = ''
         
 
-        if csvData['Страница'].dtypes != 'int64':
+        if not row['Страница'].isdigit():
             protocol += row['Фамилия'] + ' ' + row['Имя'] + ' ' + row['Отчество'] + '   ERROR: Page must be a number \n'
             errors += 1
         
