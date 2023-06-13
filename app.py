@@ -1,6 +1,7 @@
 import sqlite3
 import csv
 import os.path
+import sys
 from flask import Flask, render_template, request, url_for, flash, redirect, send_file, Response
 from io import StringIO, BytesIO
 from insert_batch import insert_batch, DBobj
@@ -9,13 +10,18 @@ from update_case import update_case
 from update_report import update_report
 from parserCSV import parseCSV
 
+    
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'my secret key'
-app.config['REPORTS_FOLDER'] = os.path.abspath('reports')
-app.config['PESONALCASES_FOLDER'] = os.path.abspath('personalcases')    
-app.config['ENV'] = 'development'
-app.config['DEBUG'] = True
-      
+app.config.from_envvar('ENV_SETTINGS')
+exiting = False
+
+#app.config['SECRET_KEY'] = '192bsdfb9sf8gb9s8dhjk34twe8rsdjk43849823554727823bcbf'
+#app.config['REPORTS_FOLDER'] = os.path.abspath('reports')
+#app.config['PESONALCASES_FOLDER'] = os.path.abspath('personalcases')    
+#app.config['ENV'] = 'development'
+#app.config['DEBUG'] = True 
+    
+    
 def sql_lower(value):
     return value.lower()
 
@@ -25,7 +31,7 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     conn.create_function('sql_lower', 1, sql_lower)
     return conn
-    
+   
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -317,6 +323,17 @@ def update_report_form():
         return Response(protocol, mimetype='text/plain', headers={'Content-Disposition':'attachment; filename=updateprotocol.txt'})
     
     return render_template('update_report_form.html', rows=result)
+
+@app.route('/shutdown')
+def shutdown():
+    global exiting
+    exiting = True
+    return "Done"
+
+@app.teardown_request
+def teardown(exception):
+    if exiting:
+        os._exit(0)
     
-if __name__ == "__main__":
-    app.run()
+#if __name__ == "__main__":
+#    app.run()

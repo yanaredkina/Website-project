@@ -6,6 +6,8 @@ body {
     font-family: "Times New Roman";
     background-color: #F8F9FB;
     letter-spacing: 0.05em;
+    width: 100%;
+    height: 100%;
 }
 
 h1 {
@@ -170,4 +172,13 @@ form textarea {
     text-align: left;
     font-size: 18px;
     margin-left: 20px;
+}
+
+#shutdown {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    width: 200px;
+    height: 25px;
+    font-size: 18px;
 }
